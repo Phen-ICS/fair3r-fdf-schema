@@ -1,4 +1,4 @@
-# 🐭 fair3r-fdf-schema
+# Fair3r FDF chema
 
 **100% declarative JSON schema** that drives the Fair3R Dataset Form (FDF) — a guided wizard for creating and editing FAIR datasets in CKAN.
 
