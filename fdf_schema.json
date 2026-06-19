@@ -5,7 +5,7 @@
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.0 - No-code backend: all mappers are declarative in JSON. Python = generic engine only.",
+    "changelog": "3.0.0 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
