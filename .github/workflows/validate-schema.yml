@@ -1,0 +1,69 @@
+name: Validate schema
+
+on:
+  push:
+    paths:
+      - "fdf_schema.json"
+  pull_request:
+    paths:
+      - "fdf_schema.json"
+
+jobs:
+  validate:
+    name: JSON syntax + schema
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: python -m json.tool fdf_schema.json > /dev/null
+
+      - name: Validate against JSON Schema
+        run: |
+          pip install jsonschema
+          python - <<'PY'
+          import json, sys
+          from jsonschema import Draft202012Validator
+
+          with open("fdf_schema.json") as f:
+              schema = json.load(f)
+
+          Draft202012Validator.check_schema(schema)
+          print("Schema self-validates as Draft 2020-12")
+          PY
+
+      - name: Validate required top-level keys
+        run: |
+          python - <<'PY'
+          import json, sys
+
+          with open("fdf_schema.json") as f:
+              data = json.load(f)
+
+          errors = []
+          for key in ("apis", "vocabularies", "sections"):
+              if key not in data:
+                  errors.append(f"Missing required top-level key: {key}")
+
+          sections = data.get("sections", [])
+          for i, sec in enumerate(sections):
+              sec_id = sec.get("id", f"index {i}")
+              if "id" not in sec:
+                  errors.append(f"Section at index {i} missing 'id'")
+              if "fields" not in sec:
+                  errors.append(f"Section '{sec_id}' missing 'fields'")
+              for j, field in enumerate(sec.get("fields", [])):
+                  fid = field.get("id", f"field index {j}")
+                  if "id" not in field:
+                      errors.append(f"Section '{sec_id}' field at index {j} missing 'id'")
+                  if "type" not in field:
+                      errors.append(f"Section '{sec_id}' field '{fid}' missing 'type'")
+
+          if errors:
+              for e in errors:
+                  print(f"ERROR: {e}", file=sys.stderr)
+              sys.exit(1)
+
+          print(f"OK — {len(sections)} section(s), {sum(len(s.get('fields',[])) for s in sections)} field(s)")
+          PY
