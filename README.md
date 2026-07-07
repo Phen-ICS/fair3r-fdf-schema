@@ -648,7 +648,30 @@ The schema includes presets for 15+ model organisms:
 - [ ] `fdf_output_json` contains expected data
 - [ ] `display_mapping` renders data on dataset page
 - [ ] DataCite mapping present (`subjects`, `creators`, `relatedIdentifiers`…)
+- [ ] Translations updated: `python tools/i18n.py check --locale fr`
 - [ ] Linting passes: `ruff check` and `bandit -r ckanext -x ckanext/fair3r/tests`
+
+---
+
+## Translations
+
+User-facing labels, help text, and placeholders are **English-only** in
+`fdf_schema.json`. Translations live in sidecar files under `i18n/` (separate
+from CKAN Babel). CKAN downloads them via `fair3r update-schema`.
+
+After editing the schema:
+
+```bash
+python tools/i18n.py template --locale fr   # add new keys, keep existing translations
+python tools/i18n.py check --locale fr      # fail if any key is missing or empty
+```
+
+Sidecar keys use stable schema ids, for example
+`sections.title.fields.publication_year.help`. If a translation is missing at
+runtime, the English string from `fdf_schema.json` is shown.
+
+To add a new locale, create `i18n/<locale>.json` using the same format and ask
+the CKAN extension maintainers to add the locale to `SUPPORTED_SCHEMA_LOCALES`.
 
 ---
 

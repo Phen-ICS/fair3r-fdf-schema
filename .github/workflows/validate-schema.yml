@@ -4,9 +4,13 @@ on:
   push:
     paths:
       - "fdf_schema.json"
+      - "i18n/**"
+      - "tools/i18n.py"
   pull_request:
     paths:
       - "fdf_schema.json"
+      - "i18n/**"
+      - "tools/i18n.py"
 
 jobs:
   validate:
@@ -67,3 +71,8 @@ jobs:
 
           print(f"OK — {len(sections)} section(s), {sum(len(s.get('fields',[])) for s in sections)} field(s)")
           PY
+
+      - name: Validate locale sidecars
+        run: |
+          python -m json.tool i18n/fr.json > /dev/null
+          python tools/i18n.py check --locale fr
