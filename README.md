@@ -686,3 +686,7 @@ Add an entry here for each significant schema change:
 - Changed api_by_taxon for allele_search
 - Updated display_mapping for section ZZZ
 ```
+
+## [2026-08-25]
+- Added `phenotype_search` field to `sections.disease`
+- Added `ols_upheno` API for UPheno ontology lookups
