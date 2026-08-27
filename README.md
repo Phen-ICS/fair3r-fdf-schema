@@ -686,3 +686,7 @@ Add an entry here for each significant schema change:
 - Changed api_by_taxon for allele_search
 - Updated display_mapping for section ZZZ
 ```
+
+## [2026-08-25]
+- Added `phenotype_search` field to `sections.disease` — enables searching observable phenotypes and traits via the UPheno ontology, complementing disease modeling with observed characteristics (e.g. weight loss, splenomegaly, motor deficits)
+- Added `ols_upheno` API — connects to the UPheno ontology through OLS4 for phenotype lookups

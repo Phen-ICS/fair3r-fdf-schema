@@ -5,7 +5,7 @@
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.0 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.1 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -107,6 +107,20 @@
         "sublabel": "{{_source.definition}}",
         "id": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId={{_source.chebi_accession}}",
         "scheme": "ChEBI"
+      }
+    },
+    "ols_upheno": {
+      "label": "uPheno (OLS4)",
+      "url": "https://www.ebi.ac.uk/ols4/api/select",
+      "query_param": "q",
+      "extra_params": {
+        "ontology": "upheno",
+        "rows": 10
+      },
+      "result_path": "response.docs",
+      "mapper": {
+        "strategy": "obo_ontology",
+        "scheme": "UPHENO"
       }
     },
     "ols_doid": {
@@ -2013,12 +2027,32 @@
             },
             "also_description": true
           }
+        },
+        {
+          "id": "phenotype_search",
+          "label": "Observed Phenotypes in Model Organism (uPheno)",
+          "type": "api_search",
+          "api": "ols_upheno",
+          "allow_manual": true,
+          "required": false,
+          "help": "Search for phenotypes observed in your animal model (mouse, rat, primate). uPheno bridges animal phenotypes with human clinical data. E.g. abnormal gait, decreased body weight, memory deficit...",
+          "placeholder": "E.g. abnormal gait, decreased locomotion, memory deficit...",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "$scheme",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
         }
       ],
       "display_mapping": {
         "source": "subjects",
         "filter": {
-          "subjectScheme": "DOID"
+          "subjectScheme": ["DOID", "UPHENO"]
         },
         "display_type": "list_links"
       }
