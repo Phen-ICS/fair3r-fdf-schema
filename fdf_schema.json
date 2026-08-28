@@ -290,9 +290,8 @@
         "strategy": "array",
         "label": "{{symbolText || symbol || id}}",
         "sublabel": "{{id}} • {{alterationType || category}}",
-        "id": "{{id}}",
+        "id": "https://www.informatics.jax.org/allele/{{id}}",
         "scheme": "alleleAccessionId",
-        "uri": "https://www.informatics.jax.org/allele/{{id}}",
         "xrefs": {
           "mgi": {
             "condition": "{{id}}",
@@ -340,7 +339,7 @@
         "strategy": "array",
         "label": "{{symbolText || symbol || id}}",
         "sublabel": "{{id}} • {{alterationType || category}}",
-        "id": "{{id}}",
+        "id": "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={{id}}",
         "scheme": "alleleAccessionId",
         "xref_from_extra": "alleleAccessionId",
         "extra": {
@@ -2069,7 +2068,7 @@
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "$scheme",
+              "subjectScheme": "ChEBI",
               "valueURI": "$id"
             },
             "also_description": true
@@ -2159,7 +2158,7 @@
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "$scheme",
+              "subjectScheme": "EFO",
               "valueURI": "$id"
             },
             "also_description": true
@@ -2203,7 +2202,7 @@
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "$scheme",
+              "subjectScheme": "DOID",
               "valueURI": "$id"
             },
             "also_description": true
@@ -2223,7 +2222,7 @@
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "$scheme",
+              "subjectScheme": "UPHENO",
               "valueURI": "$id"
             },
             "also_description": true
@@ -2267,7 +2266,7 @@
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "$scheme",
+              "subjectScheme": "UBERON",
               "valueURI": "$id"
             },
             "also_description": true
