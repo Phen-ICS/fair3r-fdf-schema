@@ -234,6 +234,33 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
 }
 ```
 
+### Auto-filled but editable field (`bind_to`)
+
+A plain field can be wired to copy a value out of a related `api_search` field's selected result, while staying editable — use this when auto-fill from the API isn't always reliable. `sections.genes.mutationType_display` is a real example: it's filled from whichever allele the user picked, but the user can type over it when the API had nothing useful:
+
+```json
+{
+  "id": "allele_search",
+  "type": "api_search",
+  "api": "ensembl_allele",
+  "update_display_field": "mutationType_display"
+},
+{
+  "id": "mutationType_display",
+  "label": "Mutation Type",
+  "type": "text",
+  "allow_manual": true,
+  "dependent_on_field": "allele_search",
+  "bind_to": "geneMutationType",
+  "help": "Auto-filled from the allele search when the API provides it. If it stays empty or looks wrong, enter it manually."
+}
+```
+
+- **`update_display_field`** (on the `api_search` field) — names the field that should receive data from the selected result
+- **`bind_to`** (on the display field) — the key read from the selected result's `mapper.extra` (see [Mapper extras & cross-references](#mapper-extras--cross-references))
+- **`dependent_on_field`** — the field that triggers the auto-fill, and whose changes should reset this one
+- Leave off `readonly` (or set it `false`) so the field stays editable, and write a `help` text that tells the user when to fill it in themselves
+
 ---
 
 ## Output mapping
@@ -422,14 +449,58 @@ Key fields:
 - **`array_find`** — find-by-key strategy
 - **`obo_ontology`** — OLS ontology format
 
+### Mapper extras & cross-references
+
+Beyond `label` / `sublabel` / `id` / `scheme`, a mapper can attach extra per-item data and describe how to link out to related records:
+
+```json
+"mapper": {
+  "strategy": "array",
+  "label": "{{symbolText || symbol || id}}",
+  "id": "{{id}}",
+  "scheme": "alleleAccessionId",
+  "source_tag": "Alliance",
+  "uri": "https://www.alliancegenome.org/allele/{{id}}",
+  "id_candidates": [
+    { "tpl": "https://identifiers.org/ncbigene:{{entrezgene}}" },
+    { "tpl": "https://www.ensembl.org/id/{{ensembl.gene}}" }
+  ],
+  "xrefs": {
+    "mgi": { "condition": "{{id}}", "id": "{{id}}", "label": "MGI", "uri": "https://www.informatics.jax.org/allele/{{id}}" }
+  },
+  "extra": {
+    "alleleSymbol": "{{symbolText}}",
+    "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+  }
+}
+```
+
+| Key | Description |
+|---|---|
+| `extra` | Per-item key/value data carried on the selected result; read later via `bind_to` on another field, or `$key` in this field's own `output.obj` |
+| `uri` | Direct link template to the source database's own page for the selected item |
+| `xrefs` | Named cross-reference links (`id`/`label`/`uri`, gated by `condition`) shown alongside the result, keyed by source (e.g. `mgi`, `alliance`) |
+| `xref_from_extra` | Builds the cross-reference display from `extra` instead of a static `xrefs` block |
+| `id_candidates` | Ordered fallback list of id templates, tried when the primary `id` template resolves empty (e.g. a gene missing `entrezgene`) |
+
+Key fields at the API level (sibling of `mapper`, not inside it):
+
+| Key | Description |
+|---|---|
+| `source_tag` / `dynamic_source_tag` | Labels which data source produced a result, shown as a badge; `dynamic_source_tag: true` lets the badge vary per result instead of being fixed to the API's own name |
+| `exclude_categories` | Drops result categories the API returns but this field shouldn't show (e.g. `variant` on an allele search) |
+| `query_prefix_with_gene` | Prefixes the search query with the selected gene symbol before calling the API |
+| `provides_chromosome_location` | Marks an API (e.g. `mygene`) as a source for auto-filling `gene_chromosome_location` |
+| `api_fallback` | Per-taxon list of backup APIs to try if the `api_by_taxon` API for that taxon fails or returns nothing |
+
 ### Taxon-based API routing
 
 ```json
 {
   "api": "ensembl_allele",
   "api_by_taxon": {
-    "10090": "mousemine_allele",
-    "10116": "alliance_allele_search",
+    "10090": "alliance_allele_search_mouse",
+    "10116": "alliance_allele_search_rat",
     "8364": "alliance_variant_search"
   }
 }
@@ -474,6 +545,32 @@ Reusable controlled lists referenced by `select`, `multi_select`, and `preset_or
 ```
 
 The `organism_presets` vocabulary includes 15+ model organisms with emoji icons, taxon IDs, and Ensembl species mappings.
+
+---
+
+## Cross-reference catalog (`xref_catalog`)
+
+A top-level dictionary that standardizes how allele/gene identifiers resolve to a source database and a clickable URI, independent of which field or API produced the id:
+
+```json
+"xref_catalog": {
+  "MGI": {
+    "db": "mgi",
+    "label": "MGI",
+    "uri": "https://www.informatics.jax.org/allele/MGI:{{id_suffix}}",
+    "provider_aliases": ["MOUSE"]
+  }
+}
+```
+
+| Key | Description |
+|---|---|
+| `db` | Internal source key |
+| `label` | Display label for the badge/link |
+| `uri` | Link template; `{{id_suffix}}` is the identifier with its prefix (e.g. `MGI:`) stripped |
+| `provider_aliases` | Alternate provider names, as returned by some APIs, that should resolve to this same entry |
+
+Organism presets point into the catalog via `allele_source_label` (e.g. `"allele_source_label": "MGI"` on the mouse preset), so the UI knows which cross-reference database to prioritize for a given species.
 
 ---
 
@@ -561,11 +658,35 @@ Add an object to the `sections` array:
   "type": "api_search",
   "api": "ensembl_allele",
   "api_by_taxon": {
-    "10090": "mousemine_allele",
-    "10116": "alliance_allele_search"
+    "10090": "alliance_allele_search_mouse",
+    "10116": "alliance_allele_search_rat"
   }
 }
 ```
+
+### Add an auto-filled but editable field
+
+Pair an `api_search` field with a `text` field the user can still type into when the API doesn't have the data — see [Auto-filled but editable field](#auto-filled-but-editable-field-bind_to) for the full explanation:
+
+```json
+{
+  "id": "allele_search",
+  "type": "api_search",
+  "api": "my_allele_api",
+  "update_display_field": "mutation_type"
+},
+{
+  "id": "mutation_type",
+  "label": "Mutation Type",
+  "type": "text",
+  "allow_manual": true,
+  "dependent_on_field": "allele_search",
+  "bind_to": "geneMutationType",
+  "help": "Auto-filled when the API provides it; enter manually otherwise."
+}
+```
+
+Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to` (here `geneMutationType`) — otherwise the field will just stay empty and rely entirely on manual entry.
 
 ---
 
@@ -582,7 +703,18 @@ Add an object to the `sections` array:
 | `api_by_taxon` | Dynamic API selection by organism |
 | `query_mode` | Special query mode (`server_side_lookup`, etc.) |
 | `on_change` | Actions triggered on field change |
-| `bind_to` | Copy value to a target attribute |
+| `bind_to` | Reads a key from a related result's `mapper.extra` into this field's value, editable unless `readonly` |
+| `update_display_field` | On an `api_search` field: which field to push the selected result's `extra` data into |
+| `dependent_on_field` | The field whose selection/change drives this field's auto-fill or reset |
+| `mapper.extra` | Per-item key/value data carried on an API result, read via `bind_to` or `$key` in `output.obj` |
+| `mapper.xrefs` / `xref_from_extra` | Cross-reference links shown for a result, static or derived from `extra` |
+| `mapper.id_candidates` | Fallback `id` templates tried in order when the primary one resolves empty |
+| `source_tag` / `dynamic_source_tag` | Badge naming the data source of a result; dynamic variant varies per result |
+| `exclude_categories` | Result categories to drop from an API response |
+| `query_prefix_with_gene` | Prefixes the search query with the selected gene symbol |
+| `provides_chromosome_location` | Flags an API as a source for gene chromosome location auto-fill |
+| `api_fallback` | Per-taxon backup APIs tried if the routed `api_by_taxon` API fails |
+| `xref_catalog` | Top-level dictionary standardizing id → source database → URI resolution |
 | `output.path` | Destination in FDF JSON |
 | `output.mode` | Write mode (`set`, `append`, `collect_object`…) |
 | `output.tpl` | Value mapping template |
@@ -690,3 +822,17 @@ Add an entry here for each significant schema change:
 ## [2026-08-25]
 - Added `phenotype_search` field to `sections.disease` — enables searching observable phenotypes and traits via the UPheno ontology, complementing disease modeling with observed characteristics (e.g. weight loss, splenomegaly, motor deficits)
 - Added `ols_upheno` API — connects to the UPheno ontology through OLS4 for phenotype lookups
+
+## [2026-08-28]
+- Migrated allele search off MouseMine and per-gene lookup endpoints onto the Alliance Genome search API: replaced `mousemine_allele` / `mousemine_allele_bygene` with `alliance_allele_search_mouse`, replaced `alliance_allele_bygene` with `alliance_allele_search_rat` and `alliance_allele_search_danio`, and renamed `alliance_allele_search` to `alliance_allele_search_dmel`; added a new `alliance_allele_search_cel` API for C. elegans
+- Removed the unused `eva_allele` and `rgd_rat_allele` APIs
+- Added a top-level `xref_catalog` (MGI, RGD, ZFIN, FB, XENBASE, WB, ENS) defining `db`/`label`/`uri` templates and `provider_aliases`, plus an `allele_source_label` per organism preset, to standardize how allele cross-references are resolved and displayed
+- Added `uri` links to `mygene` xrefs (NCBI Gene, MGI, RGD, ZFIN, Ensembl, FlyBase, WormBase, Xenbase), an `id_candidates` fallback list for more robust gene ID resolution, and a `provides_chromosome_location` flag
+- Added `source_tag` / `dynamic_source_tag` and `xref_from_extra` to allele-search API mappers for consistent source attribution
+- Updated `xenbase_mutant_lines` to resolve strains via `gene_search.xref:xenbase` instead of a separate context lookup, and simplified its output mapping to `lineType` / `lineId`
+- Updated `sections.genes.allele_search`'s `api_by_taxon` to point to the new per-species Alliance search APIs, with an `api_fallback` to `ensembl_allele` for Xenopus
+- Removed remaining "MouseMine" wording from `alliance_allele_search_mouse`'s label and from the `allele_search` field help text (MouseMine is down; mouse allele lookups now go through Alliance Genome only)
+- Merged the two `sections.genes` mutation-type fields into one: `mutationType_display` is now a single editable field, visible for every organism, still auto-filled from the allele search when the API provides it (reliable for mouse/rat; most other allele-search APIs never populate it), but the user can now type or correct it manually when it doesn't. Removed the primates-only `mutation_type_free` field
+- Added common mutation type examples to `mutationType_display`'s help text (missense_variant, nonsense_variant, frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout)
+- Fixed mutation-type auto-fill in the 5 `alliance_allele_search_*` APIs (mouse, rat, danio, dmel, cel): `alterationType` — used since the Alliance migration — always equals the literal string `"allele"` (or `"allele with one variant"`), it's a category, not a mutation description, so auto-fill was silently wrong for mouse/rat and always empty for the others. `consequenceType`/`geneMutationType` now read `molecularConsequence[0] || variantType[0]` instead, which carries the real value (e.g. `missense_variant`, `stop_gained`, `point_mutation`) when the Alliance API has variant-level data for that allele, and stays empty otherwise (letting the user fill `mutationType_display` manually, as intended)
+- Bumped schema version to 3.0.2

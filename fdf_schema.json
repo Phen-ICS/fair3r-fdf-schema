@@ -5,7 +5,7 @@
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.1 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.2 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -153,6 +153,7 @@
     },
     "mygene": {
       "label": "MyGene.info",
+      "provides_chromosome_location": true,
       "url": "https://mygene.info/v3/query",
       "query_param": "q",
       "extra_params": {
@@ -168,53 +169,68 @@
         "label": "{{symbol}}",
         "sublabel": "{{name}}",
         "id": "https://identifiers.org/ncbigene:{{_id}}",
+        "id_candidates": [
+          { "tpl": "https://identifiers.org/ncbigene:{{entrezgene}}" },
+          { "tpl": "https://www.ensembl.org/id/{{ensembl.gene}}" },
+          { "tpl": "https://identifiers.org/ncbigene:{{_id}}", "numeric": true },
+          { "tpl": "https://www.ensembl.org/id/{{_id}}" }
+        ],
         "scheme": "geneAccessionId",
         "xrefs": {
           "ncbi_gene": {
             "condition": "{{entrezgene}}",
             "id": "{{entrezgene}}",
-            "label": "NCBI Gene"
+            "label": "NCBI Gene",
+            "uri": "https://www.ncbi.nlm.nih.gov/gene/{{entrezgene}}"
           },
           "mgi": {
             "condition": "{{MGI}}",
             "id": "{{MGI}}",
-            "label": "MGI"
+            "label": "MGI",
+            "uri": "https://www.informatics.jax.org/marker/{{MGI}}"
           },
           "rgd": {
             "condition": "{{RGD}}",
             "id": "{{RGD}}",
-            "label": "RGD"
+            "label": "RGD",
+            "uri": "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={{RGD}}"
           },
           "zfin": {
             "condition": "{{ZFIN}}",
             "id": "{{ZFIN}}",
-            "label": "ZFIN"
+            "label": "ZFIN",
+            "uri": "https://zfin.org/{{ZFIN}}"
           },
           "ensembl": {
             "condition": "{{ensembl.gene}}",
             "id": "{{ensembl.gene}}",
-            "label": "Ensembl"
+            "label": "Ensembl",
+            "uri": "https://www.ensembl.org/id/{{ensembl.gene}}"
           },
           "flybase": {
             "condition": "{{FLYBASE}}",
             "id": "{{FLYBASE}}",
-            "label": "FlyBase"
+            "label": "FlyBase",
+            "uri": "https://flybase.org/reports/{{FLYBASE}}"
           },
           "wormbase": {
             "condition": "{{WormBase}}",
             "id": "{{WormBase}}",
-            "label": "WormBase"
+            "label": "WormBase",
+            "uri": "https://wormbase.org/db/get?name={{WormBase}}"
           },
           "xenbase": {
             "condition": "{{Xenbase || XENBASE}}",
             "id": "{{Xenbase || XENBASE}}",
-            "label": "Xenbase"
+            "label": "Xenbase",
+            "uri": "https://www.xenbase.org/xenbase/gene/showgene.do?method=display&geneId={{Xenbase || XENBASE}}"
           }
         }
       }
     },
     "ensembl_allele": {
       "label": "Ensembl Allele",
+      "source_tag": "Ensembl",
       "url": "https://rest.ensembl.org/overlap/region/{species}/{region}",
       "method": "GET",
       "query_param": "q",
@@ -239,6 +255,7 @@
         "sublabel": "{{consequence_type}}",
         "id": "https://identifiers.org/ensembl:{{id}}",
         "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
         "extra": {
           "alleleSymbol": "{{id}}",
           "alleleAccessionId": "{{id}}",
@@ -248,9 +265,11 @@
         }
       }
     },
-    "mousemine_allele": {
-      "label": "MouseMine Allele",
-      "url": "https://www.mousemine.org/mousemine/service/search",
+    "alliance_allele_search_mouse": {
+      "label": "Alliance Genome Allele Search (Mus musculus)",
+      "source_tag": "Alliance",
+      "dynamic_source_tag": true,
+      "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
       "query_param": "q",
       "headers": {
@@ -258,93 +277,84 @@
       },
       "depends_on": "gene_search",
       "extra_params": {
-        "format": "json",
-        "size": "20"
-      },
-      "result_path": "results",
-      "result_filter": {
-        "type": "Allele"
-      },
-      "filter_by_selected_gene": true,
-      "result_limit": 8,
-      "mapper": {
-        "strategy": "array",
-        "label": "{{fields.symbol}}",
-        "sublabel": "{{fields.primaryIdentifier}} • {{fields.alleleType || fields.name}}",
-        "id": "https://identifiers.org/{{fields.primaryIdentifier}}",
-        "scheme": "alleleAccessionId",
-        "extra": {
-          "alleleSymbol": "{{fields.symbol}}",
-          "alleleAccessionId": "{{fields.primaryIdentifier}}",
-          "consequenceType": "{{fields.alleleType}}"
-        }
-      }
-    },
-    "mousemine_allele_bygene": {
-      "label": "MouseMine Allele by Gene",
-      "url": "https://www.mousemine.org/mousemine/service/template/results",
-      "method": "GET",
-      "query_mode": "gene_alleles",
-      "gene_lookup_context": "gene_for_mousemine_lookup",
-      "headers": {
-        "Accept": "application/json"
-      },
-      "depends_on": "gene_search",
-      "extra_params": {
-        "name": "MFeature_MAllele",
-        "constraint1": "SequenceFeature",
-        "op1": "LOOKUP",
-        "format": "jsonobjects",
-        "size": "200"
-      },
-      "result_limit": 10,
-      "mapper": {
-        "strategy": "array",
-        "label": "{{symbol}}",
-        "sublabel": "{{primaryIdentifier}} • {{alleleType || name}}",
-        "id": "https://identifiers.org/{{primaryIdentifier}}",
-        "scheme": "alleleAccessionId",
-        "extra": {
-          "alleleSymbol": "{{symbol}}",
-          "alleleAccessionId": "{{primaryIdentifier}}",
-          "consequenceType": "{{alleleType}}"
-        }
-      }
-    },
-    "alliance_allele_bygene": {
-      "label": "Alliance Genome Allele by Gene",
-      "url": "https://www.alliancegenome.org/api/gene/{gene_id}/alleles",
-      "method": "GET",
-      "query_mode": "gene_alleles",
-      "gene_lookup_context": "gene_for_alliance_lookup",
-      "gene_path_param": "gene_id",
-      "headers": {
-        "Accept": "application/json"
-      },
-      "depends_on": "gene_search",
-      "extra_params": {
-        "limit": "200"
+        "category": "allele_search_result",
+        "limit": "10",
+        "species": "Mus musculus"
       },
       "exclude_categories": [
         "variant"
       ],
       "result_path": "results",
-      "result_limit": 10,
+      "result_limit": 8,
       "mapper": {
         "strategy": "array",
         "label": "{{symbolText || symbol || id}}",
         "sublabel": "{{id}} • {{alterationType || category}}",
-        "id": "https://www.alliancegenome.org/allele/{{id}}",
+        "id": "{{id}}",
         "scheme": "alleleAccessionId",
+        "uri": "https://www.informatics.jax.org/allele/{{id}}",
+        "xrefs": {
+          "mgi": {
+            "condition": "{{id}}",
+            "id": "{{id}}",
+            "label": "MGI",
+            "uri": "https://www.informatics.jax.org/allele/{{id}}"
+          },
+          "alliance": {
+            "condition": "{{id}}",
+            "id": "{{id}}",
+            "label": "Alliance",
+            "uri": "https://www.alliancegenome.org/allele/{{id}}"
+          }
+        },
         "extra": {
           "alleleSymbol": "{{symbolText}}",
           "alleleAccessionId": "{{id}}",
-          "consequenceType": "{{category}}"
+          "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
+          "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
         }
       }
     },
-    "alliance_allele_search": {
-      "label": "Alliance Genome Allele Search",
+    "alliance_allele_search_rat": {
+      "label": "Rat Genome Allele Search",
+      "source_tag": "Alliance",
+      "dynamic_source_tag": true,
+      "url": "https://www.alliancegenome.org/api/search",
+      "method": "GET",
+      "query_param": "q",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "depends_on": "gene_search",
+      "extra_params": {
+        "category": "allele_search_result",
+        "limit": "10",
+        "species": "Rattus norvegicus"
+      },
+      "exclude_categories": [
+        "variant"
+      ],
+      "result_path": "results",
+      "result_limit": 8,
+      "mapper": {
+        "strategy": "array",
+        "label": "{{symbolText || symbol || id}}",
+        "sublabel": "{{id}} • {{alterationType || category}}",
+        "id": "{{id}}",
+        "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
+        "extra": {
+          "alleleSymbol": "{{symbolText}}",
+          "alleleAccessionId": "{{id}}",
+          "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
+          "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+        }
+      }
+    },
+    "alliance_allele_search_danio": {
+      "label": "Alliance Genome Allele Search (Danio rerio)",
+      "source_tag": "Alliance",
+      "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
       "query_param": "q",
@@ -353,7 +363,8 @@
       },
       "extra_params": {
         "category": "allele_search_result",
-        "limit": "10"
+        "limit": "10",
+        "species": "Danio rerio"
       },
       "exclude_categories": [
         "variant"
@@ -366,15 +377,89 @@
         "sublabel": "{{id}} • {{alterationType || category}}",
         "id": "https://www.alliancegenome.org/allele/{{id}}",
         "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
         "extra": {
-          "alleleSymbol": "{{name_key}}",
+          "alleleSymbol": "{{symbolText}}",
           "alleleAccessionId": "{{id}}",
-          "consequenceType": "{{alterationType}}"
+          "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
+          "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+        }
+      }
+    },
+    "alliance_allele_search_dmel": {
+      "label": "Alliance Genome Allele Search (Drosophila melanogaster)",
+      "source_tag": "Alliance",
+      "dynamic_source_tag": true,
+      "url": "https://www.alliancegenome.org/api/search",
+      "method": "GET",
+      "query_param": "q",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "extra_params": {
+        "category": "allele_search_result",
+        "limit": "10",
+        "species": "Drosophila melanogaster"
+      },
+      "exclude_categories": [
+        "variant"
+      ],
+      "result_path": "results",
+      "result_limit": 10,
+      "mapper": {
+        "strategy": "array",
+        "label": "{{name_key || symbolText || symbol || id}}",
+        "sublabel": "{{id}} • {{alterationType || category}}",
+        "id": "https://www.alliancegenome.org/allele/{{id}}",
+        "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
+        "extra": {
+          "alleleSymbol": "{{symbolText}}",
+          "alleleAccessionId": "{{id}}",
+          "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
+          "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+        }
+      }
+    },
+    "alliance_allele_search_cel": {
+      "label": "Alliance Genome Allele Search (Caenorhabditis elegans)",
+      "source_tag": "Alliance",
+      "dynamic_source_tag": true,
+      "url": "https://www.alliancegenome.org/api/search",
+      "method": "GET",
+      "query_param": "q",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "extra_params": {
+        "category": "allele_search_result",
+        "limit": "10",
+        "species": "Caenorhabditis elegans"
+      },
+      "exclude_categories": [
+        "variant"
+      ],
+      "result_path": "results",
+      "result_limit": 10,
+      "mapper": {
+        "strategy": "array",
+        "label": "{{name_key || symbolText || symbol || id}}",
+        "sublabel": "{{id}} • {{alterationType || category}}",
+        "id": "https://www.alliancegenome.org/allele/{{id}}",
+        "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
+        "extra": {
+          "alleleSymbol": "{{symbolText}}",
+          "alleleAccessionId": "{{id}}",
+          "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
+          "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
         }
       }
     },
     "alliance_variant_search": {
       "label": "Alliance Genome Variant Search",
+      "source_tag": "Alliance",
+      "query_prefix_with_gene": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
       "query_param": "q",
@@ -393,40 +478,11 @@
         "sublabel": "{{category || alterationType}}",
         "id": "https://www.alliancegenome.org/variant/{{id}}",
         "scheme": "alleleAccessionId",
+        "xref_from_extra": "alleleAccessionId",
         "extra": {
           "alleleSymbol": "{{name_key || symbolText || symbol || id}}",
           "alleleAccessionId": "{{id}}",
           "mutation_type": "{{category || alterationType}}"
-        }
-      }
-    },
-    "eva_allele": {
-      "label": "EVA Allele",
-      "url": "https://www.ebi.ac.uk/eva/webservices/rest/v1/segments/{region}/variants",
-      "method": "GET",
-      "headers": {
-        "Accept": "application/json"
-      },
-      "depends_on": "gene_search",
-      "path_params_from_context": {
-        "region": "gene_chromosome_location"
-      },
-      "extra_params_from_context": {
-        "species": "organism_ensembl_species"
-      },
-      "result_path": "response[0].result",
-      "filter_by_query": true,
-      "result_limit": 12,
-      "mapper": {
-        "strategy": "array",
-        "label": "{{ids[0] || id || mainId || variantId}}",
-        "sublabel": "{{type || soTerm || consequenceType}}",
-        "id": "https://www.ebi.ac.uk/eva/?variant={{ids[0] || id || mainId || variantId}}",
-        "scheme": "alleleAccessionId",
-        "extra": {
-          "alleleSymbol": "{{ids[0] || id || mainId || variantId}}",
-          "alleleAccessionId": "{{ids[0] || id || mainId || variantId}}",
-          "mutation_type": "{{type || soTerm || consequenceType}}"
         }
       }
     },
@@ -446,56 +502,65 @@
         "searchSpecies": "11"
       },
       "extra_params_from_context": {
-        "geneId": "gene_for_xenbase_lookup"
-      },
-      "result_path": "result.items",
-      "result_limit": 12,
-      "filter_fields": ["name_clean", "display_clean", "name", "display", "lineId"],
-      "mapper": {
-        "strategy": "array",
-        "label": "{{name_clean || display_clean || name || display}}",
-        "sublabel": "Xenbase strain",
-        "id": "https://www.xenbase.org/xenbase/{{url}}",
-        "scheme": "Strain",
-        "extra": {
-          "genetic_background": "{{name_clean || display_clean || name || display}}",
-          "mutation_description": "{{name_clean || display_clean}}",
-          "line_type": "{{line_type}}"
-        }
-      }
-    },
-    "rgd_rat_allele": {
-      "label": "RGD Rat Allele",
-      "url": "/api/3/action/external_lookup",
-      "method": "GET",
-      "query_mode": "server_side_lookup",
-      "headers": {
-        "Accept": "application/json"
-      },
-      "depends_on": "gene_search",
-      "extra_params": {
-        "provider": "rgd",
-        "resource": "gene_variants",
-        "mapKey": "380"
-      },
-      "extra_params_from_context": {
-        "geneId": "gene_for_rgd_lookup"
+        "geneId": "gene_search.xref:xenbase"
       },
       "result_path": "result.items",
       "result_limit": 10,
-      "filter_fields": ["label", "display", "variantType", "rsId", "chromosome"],
       "mapper": {
         "strategy": "array",
-        "label": "{{label || display || rsId}}",
-        "sublabel": "{{variantType}}",
-        "id": "{{id || value_uri}}",
-        "scheme": "alleleAccessionId",
+        "label": "{{display_clean || name_clean || display || name}}",
+        "sublabel": "{{line_type}}",
+        "id": "{{lineId}}",
+        "scheme": "Strain",
+        "uri": "https://www.xenbase.org/xenbase/stockCenter/showLine.do?method=displayLine&lineId={{lineId}}",
         "extra": {
-          "alleleSymbol": "{{label || display || rsId}}",
-          "alleleAccessionId": "{{id || value_uri}}",
-          "mutation_type": "{{variantType}}"
+          "lineType": "{{line_type}}",
+          "lineId": "{{lineId}}"
         }
       }
+    }
+  },
+  "xref_catalog": {
+    "MGI": {
+      "db": "mgi",
+      "label": "MGI",
+      "uri": "https://www.informatics.jax.org/allele/MGI:{{id_suffix}}",
+      "provider_aliases": ["MOUSE"]
+    },
+    "RGD": {
+      "db": "rgd",
+      "label": "RGD",
+      "uri": "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:{{id_suffix}}",
+      "provider_aliases": ["RAT"]
+    },
+    "ZFIN": {
+      "db": "zfin",
+      "label": "ZFIN",
+      "uri": "https://zfin.org/{{id_suffix}}",
+      "provider_aliases": ["ZEBRAFISH"]
+    },
+    "FB": {
+      "db": "flybase",
+      "label": "FlyBase",
+      "uri": "https://flybase.org/reports/{{id_suffix}}.html",
+      "provider_aliases": ["FLY"]
+    },
+    "XENBASE": {
+      "db": "xenbase",
+      "label": "Xenbase",
+      "uri": "https://www.xenbase.org/entry/{{id_suffix}}",
+      "provider_aliases": ["XENOPUS"]
+    },
+    "WB": {
+      "db": "wormbase",
+      "label": "WormBase",
+      "uri": "https://www.wormbase.org/db/get?name={{id_suffix}};class=Variation",
+      "provider_aliases": ["WORM"]
+    },
+    "ENS": {
+      "db": "ensembl",
+      "label": "Ensembl",
+      "uri": "https://www.ensembl.org/id/{{id_suffix}}"
     }
   },
   "vocabularies": {
@@ -591,6 +656,7 @@
           "emoji": "🐭",
           "taxon_id": "10090",
           "ensembl_species": "mus_musculus",
+          "allele_source_label": "MGI",
           "scheme": "NCBITaxon",
           "triggers": [
             "strain_search",
@@ -604,6 +670,7 @@
           "emoji": "🐀",
           "taxon_id": "10116",
           "ensembl_species": "rattus_norvegicus",
+          "allele_source_label": "RGD",
           "scheme": "NCBITaxon",
           "triggers": [
             "strain_search",
@@ -629,6 +696,7 @@
           "emoji": "🐟",
           "taxon_id": "7955",
           "ensembl_species": "danio_rerio",
+          "allele_source_label": "ZFIN",
           "scheme": "NCBITaxon",
           "triggers": [
             "gene_search"
@@ -653,6 +721,7 @@
           "emoji": "🪰",
           "taxon_id": "7227",
           "ensembl_species": "drosophila_melanogaster",
+          "allele_source_label": "FlyBase",
           "scheme": "NCBITaxon",
           "triggers": [
             "gene_search"
@@ -665,6 +734,7 @@
           "emoji": "🪱",
           "taxon_id": "6239",
           "ensembl_species": "caenorhabditis_elegans",
+          "allele_source_label": "WormBase",
           "scheme": "NCBITaxon",
           "triggers": [
             "gene_search"
@@ -677,6 +747,7 @@
           "emoji": "🐸",
           "taxon_id": "8364",
           "ensembl_species": "xenopus_tropicalis",
+          "allele_source_label": "Xenbase",
           "scheme": "NCBITaxon",
           "triggers": [
             "gene_search"
@@ -1041,359 +1112,454 @@
       }
     },
     {
-    "id": "creators",
-    "title": "Creators",
-    "icon": "👥",
-    "open_default": true,
-    "repeatable": true,
-    "repeat_label": "Creator",
-    "add_label": "+ Add Creator",
-    "output": {
-      "path": "creators",
-      "mode": "collect_object"
-    },
-    "fields": [
-      {
-        "id": "role",
-        "label": "Role",
-        "type": "select",
-        "default": "Researcher",
-        "options": [
-          { "value": "Researcher", "label": "Author" },
-          { "value": "DataManager", "label": "Maintainer" }
+      "id": "creators",
+      "title": "Creators",
+      "icon": "👥",
+      "open_default": true,
+      "repeatable": true,
+      "repeat_label": "Creator",
+      "add_label": "+ Add Creator",
+      "output": {
+        "path": "creators",
+        "mode": "collect_object"
+      },
+      "fields": [
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "select",
+          "default": "Researcher",
+          "options": [
+            {
+              "value": "Researcher",
+              "label": "Author"
+            },
+            {
+              "value": "DataManager",
+              "label": "Maintainer"
+            }
+          ],
+          "output": {
+            "obj_key": "role"
+          }
+        },
+        {
+          "id": "nameType",
+          "label": "Type of Creator",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "Personal",
+              "label": "Personal"
+            },
+            {
+              "value": "Organizational",
+              "label": "Organizational"
+            }
+          ],
+          "output": {
+            "obj_key": "nameType"
+          }
+        },
+        {
+          "id": "given_name",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "row": "half",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "givenName"
+          }
+        },
+        {
+          "id": "family_name",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "row": "half",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "familyName"
+          }
+        },
+        {
+          "id": "organization_name",
+          "label": "Organization Name",
+          "type": "text",
+          "required": true,
+          "visible_if": {
+            "field": "nameType",
+            "value": "Organizational"
+          },
+          "output": {
+            "obj_key": "organization_name"
+          }
+        },
+        {
+          "id": "organization_ror",
+          "label": "Search Organization (ROR)",
+          "type": "api_search",
+          "api": "ror",
+          "allow_manual": false,
+          "autofill_from": [
+            "organization_name"
+          ],
+          "autofill_label_to": [
+            "organization_name"
+          ],
+          "placeholder": "Search ROR registry…",
+          "help": "Search ROR registry for the organization. Selection updates the organization name and identifier.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Organizational"
+          },
+          "output": {
+            "obj_key": "nameIdentifiers",
+            "mode": "wrap_array",
+            "map": {
+              "nameIdentifier": "$id",
+              "nameIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
+          }
+        },
+        {
+          "id": "orcid",
+          "label": "ORCID iD",
+          "type": "api_search",
+          "api": "orcid",
+          "orcid_autofill_from": [
+            "given_name",
+            "family_name"
+          ],
+          "allow_manual": false,
+          "placeholder": "Search ORCID iD…",
+          "help": "Search ORCID registry. Fill in given name and family name above to pre-populate the search.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "nameIdentifiers",
+            "mode": "wrap_array",
+            "map": {
+              "nameIdentifier": "$id",
+              "nameIdentifierScheme": "ORCID",
+              "schemeURI": "https://orcid.org/"
+            }
+          }
+        },
+        {
+          "id": "affiliation",
+          "label": "Affiliation (ROR)",
+          "type": "api_search",
+          "api": "ror",
+          "allow_manual": true,
+          "placeholder": "Search ROR registry…",
+          "help": "Search ROR registry for the affiliation institution.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "affiliation",
+            "mode": "wrap_array",
+            "map": {
+              "affiliation": "$label",
+              "affiliationIdentifier": "$id",
+              "affiliationIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
+          }
+        },
+        {
+          "id": "contributor_roles",
+          "label": "Project Contributions (CRediT)",
+          "type": "multi_select",
+          "vocabulary": "credit_roles",
+          "help": "Hold Ctrl or Shift while clicking to select multiple roles.",
+          "output": {
+            "obj_key": "contributorRoles",
+            "mode": "wrap_array_from_array",
+            "map": {
+              "contributorRole": "$label",
+              "contributorRoleURI": "$id",
+              "contributorRoleScheme": "CRediT",
+              "contributorRoleSchemeURI": "https://credit.niso.org/"
+            }
+          }
+        }
+      ],
+      "display_mapping": {
+        "source": [
+          "creators"
         ],
-        "output": {
-          "obj_key": "role"
-        }
-      },
-      {
-        "id": "nameType",
-        "label": "Type of Creator",
-        "type": "select",
-        "required": true,
-        "options": [
-          { "value": "Personal", "label": "Personal" },
-          { "value": "Organizational", "label": "Organizational" }
-        ],
-        "output": {
-          "obj_key": "nameType"
-        }
-      },
-      {
-        "id": "given_name",
-        "label": "First Name",
-        "type": "text",
-        "required": true,
-        "row": "half",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "givenName"
-        }
-      },
-      {
-        "id": "family_name",
-        "label": "Last Name",
-        "type": "text",
-        "required": true,
-        "row": "half",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "familyName"
-        }
-      },
-      {
-        "id": "organization_name",
-        "label": "Organization Name",
-        "type": "text",
-        "required": true,
-        "visible_if": {
-          "field": "nameType",
-          "value": "Organizational"
-        },
-        "output": {
-          "obj_key": "organization_name"
-        }
-      },
-      {
-        "id": "organization_ror",
-        "label": "Search Organization (ROR)",
-        "type": "api_search",
-        "api": "ror",
-        "allow_manual": false,
-        "autofill_from": ["organization_name"],
-        "autofill_label_to": ["organization_name"],
-        "placeholder": "Search ROR registry…",
-        "help": "Search ROR registry for the organization. Selection updates the organization name and identifier.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Organizational"
-        },
-        "output": {
-          "obj_key": "nameIdentifiers",
-          "mode": "wrap_array",
-          "map": {
-            "nameIdentifier": "$id",
-            "nameIdentifierScheme": "ROR",
-            "schemeURI": "https://ror.org/"
-          }
-        }
-      },
-      {
-        "id": "orcid",
-        "label": "ORCID iD",
-        "type": "api_search",
-        "api": "orcid",
-        "orcid_autofill_from": ["given_name", "family_name"],
-        "allow_manual": false,
-        "placeholder": "Search ORCID iD…",
-        "help": "Search ORCID registry. Fill in given name and family name above to pre-populate the search.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "nameIdentifiers",
-          "mode": "wrap_array",
-          "map": {
-            "nameIdentifier": "$id",
-            "nameIdentifierScheme": "ORCID",
-            "schemeURI": "https://orcid.org/"
-          }
-        }
-      },
-
-      {
-        "id": "affiliation",
-        "label": "Affiliation (ROR)",
-        "type": "api_search",
-        "api": "ror",
-        "allow_manual": true,
-        "placeholder": "Search ROR registry…",
-        "help": "Search ROR registry for the affiliation institution.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "affiliation",
-          "mode": "wrap_array",
-          "map": {
-            "affiliation": "$label",
-            "affiliationIdentifier": "$id",
-            "affiliationIdentifierScheme": "ROR",
-            "schemeURI": "https://ror.org/"
-          }
-        }
-      },
-
-      {
-        "id": "contributor_roles",
-        "label": "Project Contributions (CRediT)",
-        "type": "multi_select",
-        "vocabulary": "credit_roles",
-        "help": "Hold Ctrl or Shift while clicking to select multiple roles.",
-        "output": {
-          "obj_key": "contributorRoles",
-          "mode": "wrap_array_from_array",
-          "map": {
-            "contributorRole": "$label",
-            "contributorRoleURI": "$id",
-            "contributorRoleScheme": "CRediT",
-            "contributorRoleSchemeURI": "https://credit.niso.org/"
-          }
-        }
+        "accent_color": "#2563eb",
+        "display_type": "authors_merged"
       }
-    ],
-    "display_mapping": {
-      "source": ["creators"],
-      "accent_color": "#2563eb",
-      "display_type": "authors_merged"
-    }
-  },
-  {
-    "id": "contributors",
-    "title": "Contributors",
-    "icon": "🤝",
-    "open_default": false,
-    "repeatable": true,
-    "initial_instances": 0,
-    "repeat_label": "Contributor",
-    "add_label": "+ Add Contributor",
-    "output": {
-      "path": "contributors",
-      "mode": "collect_object"
     },
-    "fields": [
-      {
-        "id": "contributorType",
-        "label": "Contributor Type",
-        "type": "select",
-        "required": true,
-        "default": "Researcher",
-        "options": [
-          { "value": "ContactPerson", "label": "Contact Person" },
-          { "value": "DataCollector", "label": "Data Collector" },
-          { "value": "DataCurator", "label": "Data Curator" },
-          { "value": "DataManager", "label": "Data Manager" },
-          { "value": "Distributor", "label": "Distributor" },
-          { "value": "Editor", "label": "Editor" },
-          { "value": "HostingInstitution", "label": "Hosting Institution" },
-          { "value": "Producer", "label": "Producer" },
-          { "value": "ProjectLeader", "label": "Project Leader" },
-          { "value": "ProjectManager", "label": "Project Manager" },
-          { "value": "ProjectMember", "label": "Project Member" },
-          { "value": "RegistrationAgency", "label": "Registration Agency" },
-          { "value": "RegistrationAuthority", "label": "Registration Authority" },
-          { "value": "RelatedPerson", "label": "Related Person" },
-          { "value": "Researcher", "label": "Researcher" },
-          { "value": "ResearchGroup", "label": "Research Group" },
-          { "value": "RightsHolder", "label": "Rights Holder" },
-          { "value": "Sponsor", "label": "Sponsor" },
-          { "value": "Supervisor", "label": "Supervisor" },
-          { "value": "WorkPackageLeader", "label": "Work Package Leader" },
-          { "value": "Other", "label": "Other" }
-        ],
-        "output": {
-          "obj_key": "contributorType"
-        }
+    {
+      "id": "contributors",
+      "title": "Contributors",
+      "icon": "🤝",
+      "open_default": false,
+      "repeatable": true,
+      "initial_instances": 0,
+      "repeat_label": "Contributor",
+      "add_label": "+ Add Contributor",
+      "output": {
+        "path": "contributors",
+        "mode": "collect_object"
       },
-      {
-        "id": "nameType",
-        "label": "Type of Contributor",
-        "type": "select",
-        "required": true,
-        "options": [
-          { "value": "Personal", "label": "Personal" },
-          { "value": "Organizational", "label": "Organizational" }
-        ],
-        "output": {
-          "obj_key": "nameType"
-        }
-      },
-      {
-        "id": "given_name",
-        "label": "First Name",
-        "type": "text",
-        "required": true,
-        "row": "half",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
+      "fields": [
+        {
+          "id": "contributorType",
+          "label": "Contributor Type",
+          "type": "select",
+          "required": true,
+          "default": "Researcher",
+          "options": [
+            {
+              "value": "ContactPerson",
+              "label": "Contact Person"
+            },
+            {
+              "value": "DataCollector",
+              "label": "Data Collector"
+            },
+            {
+              "value": "DataCurator",
+              "label": "Data Curator"
+            },
+            {
+              "value": "DataManager",
+              "label": "Data Manager"
+            },
+            {
+              "value": "Distributor",
+              "label": "Distributor"
+            },
+            {
+              "value": "Editor",
+              "label": "Editor"
+            },
+            {
+              "value": "HostingInstitution",
+              "label": "Hosting Institution"
+            },
+            {
+              "value": "Producer",
+              "label": "Producer"
+            },
+            {
+              "value": "ProjectLeader",
+              "label": "Project Leader"
+            },
+            {
+              "value": "ProjectManager",
+              "label": "Project Manager"
+            },
+            {
+              "value": "ProjectMember",
+              "label": "Project Member"
+            },
+            {
+              "value": "RegistrationAgency",
+              "label": "Registration Agency"
+            },
+            {
+              "value": "RegistrationAuthority",
+              "label": "Registration Authority"
+            },
+            {
+              "value": "RelatedPerson",
+              "label": "Related Person"
+            },
+            {
+              "value": "Researcher",
+              "label": "Researcher"
+            },
+            {
+              "value": "ResearchGroup",
+              "label": "Research Group"
+            },
+            {
+              "value": "RightsHolder",
+              "label": "Rights Holder"
+            },
+            {
+              "value": "Sponsor",
+              "label": "Sponsor"
+            },
+            {
+              "value": "Supervisor",
+              "label": "Supervisor"
+            },
+            {
+              "value": "WorkPackageLeader",
+              "label": "Work Package Leader"
+            },
+            {
+              "value": "Other",
+              "label": "Other"
+            }
+          ],
+          "output": {
+            "obj_key": "contributorType"
+          }
         },
-        "output": {
-          "obj_key": "givenName"
-        }
-      },
-      {
-        "id": "family_name",
-        "label": "Last Name",
-        "type": "text",
-        "required": true,
-        "row": "half",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
+        {
+          "id": "nameType",
+          "label": "Type of Contributor",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "Personal",
+              "label": "Personal"
+            },
+            {
+              "value": "Organizational",
+              "label": "Organizational"
+            }
+          ],
+          "output": {
+            "obj_key": "nameType"
+          }
         },
-        "output": {
-          "obj_key": "familyName"
-        }
-      },
-      {
-        "id": "organization_name",
-        "label": "Organization Name",
-        "type": "text",
-        "required": true,
-        "visible_if": {
-          "field": "nameType",
-          "value": "Organizational"
+        {
+          "id": "given_name",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "row": "half",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "givenName"
+          }
         },
-        "output": {
-          "obj_key": "name"
-        }
-      },
-      {
-        "id": "organization_ror",
-        "label": "Search Organization (ROR)",
-        "type": "api_search",
-        "api": "ror",
-        "allow_manual": false,
-        "autofill_from": ["organization_name"],
-        "autofill_label_to": ["organization_name"],
-        "placeholder": "Search ROR registry…",
-        "help": "Search ROR registry for the organization. Selection updates the organization name and identifier.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Organizational"
+        {
+          "id": "family_name",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "row": "half",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "familyName"
+          }
         },
-        "output": {
-          "obj_key": "nameIdentifiers",
-          "mode": "wrap_array",
-          "map": {
-            "nameIdentifier": "$id",
-            "nameIdentifierScheme": "ROR",
-            "schemeURI": "https://ror.org/"
+        {
+          "id": "organization_name",
+          "label": "Organization Name",
+          "type": "text",
+          "required": true,
+          "visible_if": {
+            "field": "nameType",
+            "value": "Organizational"
+          },
+          "output": {
+            "obj_key": "name"
+          }
+        },
+        {
+          "id": "organization_ror",
+          "label": "Search Organization (ROR)",
+          "type": "api_search",
+          "api": "ror",
+          "allow_manual": false,
+          "autofill_from": [
+            "organization_name"
+          ],
+          "autofill_label_to": [
+            "organization_name"
+          ],
+          "placeholder": "Search ROR registry…",
+          "help": "Search ROR registry for the organization. Selection updates the organization name and identifier.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Organizational"
+          },
+          "output": {
+            "obj_key": "nameIdentifiers",
+            "mode": "wrap_array",
+            "map": {
+              "nameIdentifier": "$id",
+              "nameIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
+          }
+        },
+        {
+          "id": "orcid",
+          "label": "ORCID iD",
+          "type": "api_search",
+          "api": "orcid",
+          "orcid_autofill_from": [
+            "given_name",
+            "family_name"
+          ],
+          "allow_manual": false,
+          "placeholder": "Search ORCID iD…",
+          "help": "Search ORCID registry. Fill in given name and family name above to pre-populate the search.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "nameIdentifiers",
+            "mode": "wrap_array",
+            "map": {
+              "nameIdentifier": "$id",
+              "nameIdentifierScheme": "ORCID",
+              "schemeURI": "https://orcid.org/"
+            }
+          }
+        },
+        {
+          "id": "affiliation",
+          "label": "Affiliation (ROR)",
+          "type": "api_search",
+          "api": "ror",
+          "allow_manual": true,
+          "placeholder": "Search ROR registry…",
+          "help": "Search ROR registry for the affiliation institution.",
+          "visible_if": {
+            "field": "nameType",
+            "value": "Personal"
+          },
+          "output": {
+            "obj_key": "affiliation",
+            "mode": "wrap_array",
+            "map": {
+              "affiliation": "$label",
+              "affiliationIdentifier": "$id",
+              "affiliationIdentifierScheme": "ROR",
+              "schemeURI": "https://ror.org/"
+            }
           }
         }
-      },
-      {
-        "id": "orcid",
-        "label": "ORCID iD",
-        "type": "api_search",
-        "api": "orcid",
-        "orcid_autofill_from": ["given_name", "family_name"],
-        "allow_manual": false,
-        "placeholder": "Search ORCID iD…",
-        "help": "Search ORCID registry. Fill in given name and family name above to pre-populate the search.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "nameIdentifiers",
-          "mode": "wrap_array",
-          "map": {
-            "nameIdentifier": "$id",
-            "nameIdentifierScheme": "ORCID",
-            "schemeURI": "https://orcid.org/"
-          }
-        }
-      },
-      {
-        "id": "affiliation",
-        "label": "Affiliation (ROR)",
-        "type": "api_search",
-        "api": "ror",
-        "allow_manual": true,
-        "placeholder": "Search ROR registry…",
-        "help": "Search ROR registry for the affiliation institution.",
-        "visible_if": {
-          "field": "nameType",
-          "value": "Personal"
-        },
-        "output": {
-          "obj_key": "affiliation",
-          "mode": "wrap_array",
-          "map": {
-            "affiliation": "$label",
-            "affiliationIdentifier": "$id",
-            "affiliationIdentifierScheme": "ROR",
-            "schemeURI": "https://ror.org/"
-          }
-        }
+      ],
+      "display_mapping": {
+        "source": "contributors",
+        "accent_color": "#7c3aed",
+        "display_type": "authors_merged"
       }
-    ],
-    "display_mapping": {
-      "source": "contributors",
-      "accent_color": "#7c3aed",
-      "display_type": "authors_merged"
-    }
-  },
+    },
     {
       "id": "organism",
       "title": "Biological Model",
@@ -1423,7 +1589,10 @@
           "on_change": [
             {
               "action": "reset_fields",
-              "fields": ["gene_search", "strain_search" ]
+              "fields": [
+                "gene_search",
+                "strain_search"
+              ]
             }
           ]
         }
@@ -1552,382 +1721,394 @@
       }
     },
     {
-    "id": "genes",
-    "title": "Involved Genes",
-    "icon": "🧬",
-    "open_default": true,
-    "condition": {
-      "type": "checkbox_includes",
-      "field_id": "intervention_types",
-      "value": "GENE"
-    },
-    "repeatable": true,
-    "subject_scheme": "geneAccessionId",
-    "repeat_label": "Gene / Allele",
-    "add_label": "+ Add Gene or Allele",
-    "fields": [
-      {
-        "id": "cross_species_gene",
-        "label": "Cross-species gene / transgene",
-        "type": "checkbox_group",
-        "options": [
-          {
-            "value": "true",
-            "label": "Search gene in all species (humanized knock-in, transgenic or cross-species model)"
-          }
-        ],
-        "help": "Check this if the gene or mutation originates from a different species than the host organism (e.g. human APOE4 knock-in in mouse, AAV-human transgene in primate)."
+      "id": "genes",
+      "title": "Involved Genes",
+      "icon": "🧬",
+      "open_default": true,
+      "condition": {
+        "type": "checkbox_includes",
+        "field_id": "intervention_types",
+        "value": "GENE"
       },
-      {
-        "id": "gene_search",
-        "label": "Gene Symbol, Name or Identifier",
-        "type": "api_search",
-        "api": "mygene",
-        "api_by_taxon": {
-          "10090": "mygene",
-          "10116": "mygene",
-          "10036": "mygene",
-          "7955": "mygene",
-          "8090": "mygene",
-          "7227": "mygene",
-          "6239": "mygene",
-          "8364": "mygene",
-          "9544": "mygene",
-          "9541": "mygene",
-          "9483": "mygene",
-          "9555": "mygene",
-          "60711": "mygene",
-          "9986": "mygene",
-          "9978": "mygene"
+      "repeatable": true,
+      "subject_scheme": "geneAccessionId",
+      "repeat_label": "Gene / Allele",
+      "add_label": "+ Add Gene or Allele",
+      "fields": [
+        {
+          "id": "cross_species_gene",
+          "label": "Cross-species gene / transgene",
+          "type": "checkbox_group",
+          "options": [
+            {
+              "value": "true",
+              "label": "Search gene in all species (humanized knock-in, transgenic or cross-species model)"
+            }
+          ],
+          "help": "Check this if the gene or mutation originates from a different species than the host organism (e.g. human APOE4 knock-in in mouse, AAV-human transgene in primate)."
         },
-        "use_organism_taxon": true,
-        "allow_manual": true,
-        "required": false,
-        "show_xrefs": true,
-        "organism_dependent": true,
-        "help": "Select an organism model first, then search gene (Apoe, MGI:88057, ENSMUSG...). Selecting a gene enables allele search.",
-        "placeholder": "E.g. Apoe, MGI:88057…",
-        "output": {
-          "path": "subjects",
-          "mode": "append",
-          "tpl": {
-            "subject": "Gene: $label",
-            "subjectScheme": "$scheme",
-            "valueURI": "$id"
+        {
+          "id": "gene_search",
+          "label": "Gene Symbol, Name or Identifier",
+          "type": "api_search",
+          "api": "mygene",
+          "api_by_taxon": {
+            "10090": "mygene",
+            "10116": "mygene",
+            "10036": "mygene",
+            "7955": "mygene",
+            "8090": "mygene",
+            "7227": "mygene",
+            "6239": "mygene",
+            "8364": "mygene",
+            "9544": "mygene",
+            "9541": "mygene",
+            "9483": "mygene",
+            "9555": "mygene",
+            "60711": "mygene",
+            "9986": "mygene",
+            "9978": "mygene"
           },
-          "xref_key": "identifiers",
-          "also_description": true,
-          "obj": {
-            "geneSymbol": "$label",
-            "geneName": "$description",
-            "geneAccessionId": "$id",
-            "geneChromosomeLocation": "$chromosome"
+          "use_organism_taxon": true,
+          "allow_manual": true,
+          "required": false,
+          "show_xrefs": true,
+          "organism_dependent": true,
+          "help": "Select an organism model first, then search gene (Apoe, MGI:88057, ENSMUSG...). Selecting a gene enables allele search.",
+          "placeholder": "E.g. Apoe, MGI:88057…",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "Gene: $label",
+              "subjectScheme": "$scheme",
+              "valueURI": "$id"
+            },
+            "xref_key": "identifiers",
+            "also_description": true,
+            "obj": {
+              "geneSymbol": "$label",
+              "geneName": "$description",
+              "geneAccessionId": "$id",
+              "geneChromosomeLocation": "$chromosome"
+            }
           }
-        }
-      },
-      {
-        "id": "transgene_origin_species",
-        "label": "Transgene / Gene origin species",
-        "type": "api_search",
-        "api": "ols_ncbitaxon",
-        "allow_manual": true,
-        "required": false,
-        "placeholder": "E.g. Homo sapiens, Mus musculus…",
-        "visible_if": {
-          "field": "cross_species_gene",
-          "checked": true
         },
-        "help": "Species from which the gene or mutation originates. Stored as a DataCite subject for cross-species traceability.",
-        "output": {
-          "path": "subjects",
-          "mode": "append_if",
-          "tpl": {
-            "subject": "Transgene origin: $label",
-            "subjectScheme": "TransgeneOrigin",
-            "valueURI": "$id",
-            "schemeURI": "http://purl.obolibrary.org/obo/"
-          }
-        }
-      },
-      {
-        "id": "gene_chromosome_location",
-        "label": "Gene Chromosome Location",
-        "type": "text",
-        "required": false,
-        "placeholder": "Ex: 1:182712-189124",
-        "organism_dependent": true,
-        "help": "Chromosomal locus used for allele search (expected format: chr:start-end). Auto-filled from MyGene when possible, otherwise enter manually.",
-        "output": {
-          "path": "subjects",
-          "mode": "append_if",
-          "tpl": {
-            "subject": "Gene locus: $value",
-            "subjectScheme": "geneChromosomeLocation",
-            "valueURI": "$value"
-          }
-        }
-      },
-      {
-        "id": "allele_search",
-        "label": "Allele (Mutation)",
-        "type": "api_search",
-        "api": "ensembl_allele",
-        "api_by_taxon": {
-          "10090": "mousemine_allele",
-          "10116": "alliance_allele_search",
-          "10036": "ensembl_allele",
-          "7955": "alliance_allele_search",
-          "8090": "ensembl_allele",
-          "7227": "alliance_allele_search",
-          "6239": "alliance_allele_search",
-          "8364": "alliance_variant_search",
-          "9544": "ensembl_allele",
-          "9541": "ensembl_allele",
-          "9483": "ensembl_allele",
-          "9555": "ensembl_allele",
-          "60711": "ensembl_allele",
-          "9986": "ensembl_allele",
-          "9978": "ensembl_allele"
-        },
-        "depends_on": "gene_search",
-        "required": false,
-        "organism_dependent": true,
-        "update_display_field": "mutationType_display",
-        "allow_manual": true,
-        "visible_if": {
-          "field": "gene_search",
-          "not_empty": true,
-          "taxon_not_in": ["8364", "9544", "9541", "9483", "9555", "60711"]
-        },
-        "help": "Optional but recommended. For mouse: shows MouseMine/MGI first + Alliance results. For rat, zebrafish, fruit fly: uses Alliance Genome (RGD/ZFIN/FlyBase). For C. elegans: type the GENE SYMBOL (e.g. 'nspg-9') in the search box to retrieve WormBase alleles from Alliance Genome. For primates: use the dedicated free-text allele and mutation fields below instead. If selected, it overrides gene precision.",
-        "placeholder": "E.g. Trp53tm1Tyj, MGI:xxxx",
-        "output": {
-          "path": "subjects",
-          "mode": "append",
-          "tpl": {
-            "subject": "Allele: $label",
-            "subjectScheme": "alleleAccessionId",
-            "valueURI": "$id"
+        {
+          "id": "transgene_origin_species",
+          "label": "Transgene / Gene origin species",
+          "type": "api_search",
+          "api": "ols_ncbitaxon",
+          "allow_manual": true,
+          "required": false,
+          "placeholder": "E.g. Homo sapiens, Mus musculus…",
+          "visible_if": {
+            "field": "cross_species_gene",
+            "checked": true
           },
-          "obj": {
-            "alleleSymbol": "$label",
-            "alleleAccessionId": "$id",
-            "geneMutationType": "$mutation_type",
-            "geneSymbol": "$gene_symbol",
-            "geneAccessionId": "$gene_id"
+          "help": "Species from which the gene or mutation originates. Stored as a DataCite subject for cross-species traceability.",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "Transgene origin: $label",
+              "subjectScheme": "TransgeneOrigin",
+              "valueURI": "$id",
+              "schemeURI": "http://purl.obolibrary.org/obo/"
+            }
           }
-        }
-      },
-      {
-        "id": "allele_identifier_free",
-        "label": "Allele Identifier (free text)",
-        "type": "text",
-        "required": false,
-        "allow_manual": true,
-        "visible_if": {
-          "field": "gene_search",
-          "not_empty": true,
-          "taxon_in": ["9544", "9541", "9483", "9555", "60711"]
         },
-        "help": "For primates, no curated allele database is available via API. Enter the allele or variant identifier manually (e.g. dbSNP rs ID, Ensembl variant ID, or custom lab identifier).",
-        "placeholder": "E.g. rs123456, ENSVAR..., custom allele ID",
-        "output": {
-          "path": "subjects",
-          "mode": "append_if",
-          "tpl": {
-            "subject": "Allele: $value",
-            "subjectScheme": "alleleAccessionId",
-            "valueURI": "$value"
+        {
+          "id": "gene_chromosome_location",
+          "label": "Gene Chromosome Location",
+          "type": "text",
+          "required": false,
+          "placeholder": "Ex: 1:182712-189124",
+          "organism_dependent": true,
+          "help": "Chromosomal locus used for allele search (expected format: chr:start-end). Auto-filled from MyGene when possible, otherwise enter manually.",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "Gene locus: $value",
+              "subjectScheme": "geneChromosomeLocation",
+              "valueURI": "$value"
+            }
+          }
+        },
+        {
+          "id": "allele_search",
+          "label": "Allele (Mutation)",
+          "type": "api_search",
+          "api": "ensembl_allele",
+          "api_by_taxon": {
+            "10090": "alliance_allele_search_mouse",
+            "10116": "alliance_allele_search_rat",
+            "10036": "ensembl_allele",
+            "7955": "alliance_allele_search_danio",
+            "8090": "ensembl_allele",
+            "7227": "alliance_allele_search_dmel",
+            "6239": "alliance_allele_search_cel",
+            "8364": "alliance_variant_search",
+            "9544": "ensembl_allele",
+            "9541": "ensembl_allele",
+            "9483": "ensembl_allele",
+            "9555": "ensembl_allele",
+            "60711": "ensembl_allele",
+            "9986": "ensembl_allele",
+            "9978": "ensembl_allele"
           },
-          "obj": {
-            "alleleSymbol": "$value",
-            "alleleAccessionId": "$value"
-          }
-        }
-      },
-      {
-        "id": "mutation_type_free",
-        "label": "Mutation Type (free text)",
-        "type": "text",
-        "required": false,
-        "allow_manual": true,
-        "visible_if": {
-          "field": "gene_search",
-          "not_empty": true,
-          "taxon_in": ["9544", "9541", "9483", "9555", "60711"]
-        },
-        "help": "Describe the mutation type manually for primate datasets (e.g. missense, deletion, insertion).",
-        "placeholder": "E.g. missense_variant",
-        "output": {
-          "path": "subjects",
-          "mode": "append_if",
-          "tpl": {
-            "subject": "Mutation type: $value",
-            "subjectScheme": "geneMutationType",
-            "valueURI": "$value"
+          "depends_on": "gene_search",
+          "required": false,
+          "organism_dependent": true,
+          "update_display_field": "mutationType_display",
+          "allow_manual": true,
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true,
+            "taxon_not_in": [
+              "8364",
+              "9544",
+              "9541",
+              "9483",
+              "9555",
+              "60711"
+            ]
           },
-          "obj": {
-            "geneMutationType": "$value",
-            "mutation_type": "$value"
-          }
-        }
-      },
-      {
-        "id": "genetic_background",
-        "label": "Strain / Line (Mutant)",
-        "type": "api_search",
-        "api": "xenbase_mutant_lines",
-        "api_by_taxon": {
-          "8364": "xenbase_mutant_lines"
-        },
-        "depends_on": "gene_search",
-        "organism_dependent": true,
-        "clear_dependent_fields": ["xenopus_line_type"],
-        "required": false,
-        "allow_manual": true,
-        "visible_if": {
-          "field": "gene_search",
-          "not_empty": true,
-          "taxon_in": ["8364"]
-        },
-        "help": "For Xenopus, use mutant strains/lines from Xenbase linked to the selected gene.",
-        "placeholder": "E.g. Xtr.pax6 emOgino, Xtr.pax6 tmNXR",
-        "output": {
-          "path": "subjects",
-          "mode": "append",
-          "tpl": {
-            "subject": "Strain: $label",
-            "subjectScheme": "speciesBackground",
-            "valueURI": "$id"
+          "api_fallback": {
+            "8364": [
+              "ensembl_allele"
+            ]
           },
-          "obj": {
-            "geneticBackground": "$label",
-            "mutationDescription": "$mutation_description",
-            "lineType": "$line_type"
+          "help": "Optional but recommended. For mouse, rat, zebrafish, fruit fly: uses Alliance Genome (MGI/RGD/ZFIN/FlyBase). For C. elegans: type the GENE SYMBOL (e.g. 'nspg-9') in the search box to retrieve WormBase alleles from Alliance Genome. For primates: use the dedicated free-text allele and mutation fields below instead. If selected, it overrides gene precision.",
+          "placeholder": "E.g. Trp53tm1Tyj, MGI:xxxx",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "Allele: $label",
+              "subjectScheme": "alleleAccessionId",
+              "valueURI": "$id"
+            },
+            "obj": {
+              "alleleSymbol": "$label",
+              "alleleAccessionId": "$id",
+              "geneMutationType": "$mutation_type",
+              "geneSymbol": "$gene_symbol",
+              "geneAccessionId": "$gene_id"
+            }
+          }
+        },
+        {
+          "id": "allele_identifier_free",
+          "label": "Allele Identifier (free text)",
+          "type": "text",
+          "required": false,
+          "allow_manual": true,
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true,
+            "taxon_in": [
+              "9544",
+              "9541",
+              "9483",
+              "9555",
+              "60711"
+            ]
+          },
+          "help": "For primates, no curated allele database is available via API. Enter the allele or variant identifier manually (e.g. dbSNP rs ID, Ensembl variant ID, or custom lab identifier).",
+          "placeholder": "E.g. rs123456, ENSVAR..., custom allele ID",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "Allele: $value",
+              "subjectScheme": "alleleAccessionId",
+              "valueURI": "$value"
+            },
+            "obj": {
+              "alleleSymbol": "$value",
+              "alleleAccessionId": "$value"
+            }
+          }
+        },
+        {
+          "id": "genetic_background",
+          "label": "Strain / Line (Mutant)",
+          "type": "api_search",
+          "api": "xenbase_mutant_lines",
+          "depends_on": "gene_search",
+          "organism_dependent": true,
+          "clear_dependent_fields": [
+            "xenopus_line_type"
+          ],
+          "required": false,
+          "allow_manual": true,
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true,
+            "taxon_in": [
+              "8364"
+            ]
+          },
+          "help": "For Xenopus, search the mutant/transgenic lines Xenbase has on record for this gene, or enter one manually (e.g. Xtr.pax6 emOgino).",
+          "placeholder": "E.g. Xtr.pax6 emOgino, Xtr.pax6 tmNXR",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "Strain: $label",
+              "subjectScheme": "speciesBackground",
+              "valueURI": "$id"
+            },
+            "obj": {
+              "lineType": "$lineType"
+            }
+          }
+        },
+        {
+          "id": "xenopus_line_type",
+          "label": "Line Type",
+          "type": "preset_or_search",
+          "vocabulary": "xenbase_line_types",
+          "required": false,
+          "organism_dependent": true,
+          "dependent_on_field": "genetic_background",
+          "allow_manual": true,
+          "placeholder": "E.g. Mutant, Transgenic",
+          "help": "Preferred Xenbase values: Mutant, Transgenic, Wild-Type strain.",
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true,
+            "taxon_in": [
+              "8364"
+            ]
+          },
+          "bind_to": "lineType"
+        },
+        {
+          "id": "mutationType_display",
+          "label": "Mutation Type",
+          "type": "text",
+          "required": false,
+          "allow_manual": true,
+          "organism_dependent": true,
+          "dependent_on_field": "allele_search",
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true
+          },
+          "bind_to": "geneMutationType",
+          "help": "Auto-filled from the allele search above when the API provides it (reliable for mouse and rat; not always for other species). If it stays empty or looks wrong, enter it manually. Common examples: missense_variant, nonsense_variant (stop_gained), frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout.",
+          "placeholder": "E.g. missense_variant",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "Mutation type: $value",
+              "subjectScheme": "geneMutationType",
+              "valueURI": "$value"
+            },
+            "obj": {
+              "geneMutationType": "$value",
+              "mutation_type": "$value"
+            }
           }
         }
-      },
-      {
-        "id": "xenopus_line_type",
-        "label": "Line Type",
-        "type": "preset_or_search",
-        "vocabulary": "xenbase_line_types",
-        "required": false,
-        "organism_dependent": true,
-        "dependent_on_field": "genetic_background",
-        "allow_manual": true,
-        "placeholder": "E.g. Mutant, Transgenic",
-        "help": "Preferred Xenbase values: Mutant, Transgenic, Wild-Type strain.",
-        "visible_if": {
-          "field": "gene_search",
-          "not_empty": true,
-          "taxon_in": ["8364"]
-        },
-        "bind_to": "lineType"
-      },
-      {
-        "id": "mutationType_display",
-        "label": "Mutation Type",
-        "organism_dependent": true,
-        "dependent_on_field": "allele_search",
-        "type": "text",
-        "readonly": true,
-        "visible_if": {
-          "field": "allele_search",
-          "not_empty": true
-        },
-        "bind_to": "geneMutationType",
-        "output": {
-          "path": "subjects",
-          "mode": "append_if",
-          "tpl": {
-            "subject": "$value",
-            "subjectScheme": "geneMutationType"
-          }
-        }
-      }
-    ],
-    "display_mapping": {
-      "source": [
-        "subjects"
       ],
-      "filter": {
-          "subjectScheme": ["geneAccessionId", "alleleAccessionId", "geneMutationType", "geneChromosomeLocation", "TransgeneOrigin"]
-      },
-      "labels": {
-        "geneAccessionId": "Gene",
-        "geneChromosomeLocation": "Gene Chromosome Location",
-        "alleleAccessionId": "Allele",
-        "geneMutationType": "Mutation Type",
-        "TransgeneOrigin": "Transgene Origin"
-      },
-      "accent_color": "#7c3aed",
-      "display_type": "composite"
-    }
-  },
-    {
-    "id": "chemicals",
-    "title": "Molecules & Treatments",
-    "icon": "💊",
-    "open_default": true,
-    "condition": {
-      "type": "checkbox_includes",
-      "field_id": "intervention_types",
-      "value": "CHEM"
-    },
-    "repeatable": true,
-    "subject_scheme": "ChEBI",
-    "repeat_label": "Molecule",
-    "add_label": "+ Add Molecule",
-    "fields": [
-      {
-        "id": "chem_search",
-        "label": "Molecule (ChEBI)",
-        "type": "api_search",
-        "api": "ols_chebi",
-        "allow_manual": true,
-        "required": false,
-        "help": "Search for chemical compounds in the ChEBI ontology. Manual entry allowed if not found.",
-        "placeholder": "E.g. Tamoxifen, Doxycycline, Metformin…",
-        "output": {
-          "path": "subjects",
-          "mode": "append",
-          "tpl": {
-            "subject": "$label",
-            "subjectScheme": "$scheme",
-            "valueURI": "$id"
-          },
-          "also_description": true
-        }
-      },
-      {
-        "id": "treatmentprotocol",
-        "label": "Treatment Protocol",
-        "type": "select",
-        "options": [
-          { "value": "acute", "label": "Acute" },
-          { "value": "chronic", "label": "Chronic" }
+      "display_mapping": {
+        "source": [
+          "subjects"
         ],
-        "required": true,
-        "help": "Indicate whether the treatment is acute or chronic.",
-        "output": {
-          "path": "treatmentProtocol",
-          "mode": "append"
-        }
-      },
-      {
-        "id": "treatmentdesign",
-        "label": "Treatment Design / Administration",
-        "type": "text",
-        "required": false,
-        "max_length": 500,
-        "help": "Provide free text with guideline: dose with unit, route, number of doses, duration, frequency, anesthesia, vehicle. Example: '50 mg/kg, IP, 3 doses, 7 days, 1x/day, anesthesia: none, vehicle: saline 0.9%'",
-        "output": {
-          "path": "treatmentDesign",
-          "mode": "append"
-        }
+        "filter": {
+          "subjectScheme": [
+            "geneAccessionId",
+            "alleleAccessionId",
+            "geneMutationType",
+            "geneChromosomeLocation",
+            "TransgeneOrigin"
+          ]
+        },
+        "labels": {
+          "geneAccessionId": "Gene",
+          "geneChromosomeLocation": "Gene Chromosome Location",
+          "alleleAccessionId": "Allele",
+          "geneMutationType": "Mutation Type",
+          "TransgeneOrigin": "Transgene Origin"
+        },
+        "accent_color": "#7c3aed",
+        "display_type": "composite"
       }
-    ],
+    },
+    {
+      "id": "chemicals",
+      "title": "Molecules & Treatments",
+      "icon": "💊",
+      "open_default": true,
+      "condition": {
+        "type": "checkbox_includes",
+        "field_id": "intervention_types",
+        "value": "CHEM"
+      },
+      "repeatable": true,
+      "subject_scheme": "ChEBI",
+      "repeat_label": "Molecule",
+      "add_label": "+ Add Molecule",
+      "fields": [
+        {
+          "id": "chem_search",
+          "label": "Molecule (ChEBI)",
+          "type": "api_search",
+          "api": "ols_chebi",
+          "allow_manual": true,
+          "required": false,
+          "help": "Search for chemical compounds in the ChEBI ontology. Manual entry allowed if not found.",
+          "placeholder": "E.g. Tamoxifen, Doxycycline, Metformin…",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "$scheme",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
+        },
+        {
+          "id": "treatmentprotocol",
+          "label": "Treatment Protocol",
+          "type": "select",
+          "options": [
+            {
+              "value": "acute",
+              "label": "Acute"
+            },
+            {
+              "value": "chronic",
+              "label": "Chronic"
+            }
+          ],
+          "required": true,
+          "help": "Indicate whether the treatment is acute or chronic.",
+          "output": {
+            "path": "treatmentProtocol",
+            "mode": "append"
+          }
+        },
+        {
+          "id": "treatmentdesign",
+          "label": "Treatment Design / Administration",
+          "type": "text",
+          "required": false,
+          "max_length": 500,
+          "help": "Provide free text with guideline: dose with unit, route, number of doses, duration, frequency, anesthesia, vehicle. Example: '50 mg/kg, IP, 3 doses, 7 days, 1x/day, anesthesia: none, vehicle: saline 0.9%'",
+          "output": {
+            "path": "treatmentDesign",
+            "mode": "append"
+          }
+        }
+      ],
       "display_mapping": {
         "source": [
           "subjects",
@@ -1948,7 +2129,7 @@
         "accent_color": "#dd6b20",
         "display_type": "composite"
       }
-  },
+    },
     {
       "id": "diet",
       "title": "Diet / Feeding Regiment",
