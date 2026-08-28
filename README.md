@@ -482,6 +482,32 @@ Beyond `label` / `sublabel` / `id` / `scheme`, a mapper can attach extra per-ite
 | `xrefs` | Named cross-reference links (`id`/`label`/`uri`, gated by `condition`) shown alongside the result, keyed by source (e.g. `mgi`, `alliance`) |
 | `xref_from_extra` | Builds the cross-reference display from `extra` instead of a static `xrefs` block |
 | `id_candidates` | Ordered fallback list of id templates, tried when the primary `id` template resolves empty (e.g. a gene missing `entrezgene`) |
+| `detail_fetch` | After a result is selected, fetches a per-item detail endpoint and merges its data into `extra` (see below) |
+
+### Detail fetch (secondary lookup after selection)
+
+Sometimes the search endpoint itself can't carry the data you need — Alliance Genome's allele search tags every single allele with the same generic `alterationType` (`"allele"`), not its actual mutation description. `detail_fetch` lets a mapper fire a second request, scoped to the one result the user picked, and pull richer data from there:
+
+```json
+"mapper": {
+  "strategy": "array",
+  "extra": {
+    "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+  },
+  "detail_fetch": {
+    "url": "https://www.alliancegenome.org/api/allele/{{id}}",
+    "extra": {
+      "geneMutationType": "{{allele.relatedNotes.[?noteType.name=mutation_description].freeText}}"
+    }
+  }
+}
+```
+
+- `url` — detail endpoint template, interpolated from the selected result's own fields (here `{{id}}`)
+- `extra` — additional/override key-value pairs read from the detail response, using the same `{{...}}` templating (JMESPath-style filters included, e.g. `[?noteType.name=mutation_description]`) as the main mapper
+- Keep a value in the main `mapper.extra` too when you can (as above) — it's what shows immediately, while `detail_fetch` fills in or overrides it once the second request resolves
+
+Used by `alliance_allele_search_mouse` / `alliance_allele_search_rat` to pull the free-text `mutation_description` note from Alliance Genome's per-allele API, since the search endpoint alone can't tell a knockout from a point mutation.
 
 Key fields at the API level (sibling of `mapper`, not inside it):
 
@@ -709,6 +735,7 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `mapper.extra` | Per-item key/value data carried on an API result, read via `bind_to` or `$key` in `output.obj` |
 | `mapper.xrefs` / `xref_from_extra` | Cross-reference links shown for a result, static or derived from `extra` |
 | `mapper.id_candidates` | Fallback `id` templates tried in order when the primary one resolves empty |
+| `mapper.detail_fetch` | Secondary API call, scoped to the selected result, to enrich `extra` with data the search endpoint didn't provide |
 | `source_tag` / `dynamic_source_tag` | Badge naming the data source of a result; dynamic variant varies per result |
 | `exclude_categories` | Result categories to drop from an API response |
 | `query_prefix_with_gene` | Prefixes the search query with the selected gene symbol |
@@ -835,4 +862,5 @@ Add an entry here for each significant schema change:
 - Merged the two `sections.genes` mutation-type fields into one: `mutationType_display` is now a single editable field, visible for every organism, still auto-filled from the allele search when the API provides it (reliable for mouse/rat; most other allele-search APIs never populate it), but the user can now type or correct it manually when it doesn't. Removed the primates-only `mutation_type_free` field
 - Added common mutation type examples to `mutationType_display`'s help text (missense_variant, nonsense_variant, frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout)
 - Fixed mutation-type auto-fill in the 5 `alliance_allele_search_*` APIs (mouse, rat, danio, dmel, cel): `alterationType` — used since the Alliance migration — always equals the literal string `"allele"` (or `"allele with one variant"`), it's a category, not a mutation description, so auto-fill was silently wrong for mouse/rat and always empty for the others. `consequenceType`/`geneMutationType` now read `molecularConsequence[0] || variantType[0]` instead, which carries the real value (e.g. `missense_variant`, `stop_gained`, `point_mutation`) when the Alliance API has variant-level data for that allele, and stays empty otherwise (letting the user fill `mutationType_display` manually, as intended)
+- Added a `detail_fetch` to the `alliance_allele_search_mouse` / `alliance_allele_search_rat` mappers: after an allele is selected, it calls `https://www.alliancegenome.org/api/allele/{{id}}` and pulls the free-text `mutation_description` note into `geneMutationType`/`consequenceType`, giving mouse and rat a real mutation description instead of relying only on `molecularConsequence`/`variantType` (which the search endpoint often doesn't return for allele-level results)
 - Bumped schema version to 3.0.2

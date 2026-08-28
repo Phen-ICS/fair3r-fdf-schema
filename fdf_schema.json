@@ -311,6 +311,13 @@
           "alleleAccessionId": "{{id}}",
           "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
           "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+        },
+        "detail_fetch": {
+          "url": "https://www.alliancegenome.org/api/allele/{{id}}",
+          "extra": {
+            "consequenceType": "{{allele.relatedNotes.[?noteType.name=mutation_description].freeText}}",
+            "geneMutationType": "{{allele.relatedNotes.[?noteType.name=mutation_description].freeText}}"
+          }
         }
       }
     },
@@ -347,6 +354,13 @@
           "alleleAccessionId": "{{id}}",
           "consequenceType": "{{molecularConsequence[0] || variantType[0]}}",
           "geneMutationType": "{{molecularConsequence[0] || variantType[0]}}"
+        },
+        "detail_fetch": {
+          "url": "https://www.alliancegenome.org/api/allele/{{id}}",
+          "extra": {
+            "consequenceType": "{{allele.relatedNotes.[?noteType.name=mutation_description].freeText}}",
+            "geneMutationType": "{{allele.relatedNotes.[?noteType.name=mutation_description].freeText}}"
+          }
         }
       }
     },
