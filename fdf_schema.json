@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.2 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.3 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -170,10 +170,19 @@
         "sublabel": "{{name}}",
         "id": "https://identifiers.org/ncbigene:{{_id}}",
         "id_candidates": [
-          { "tpl": "https://identifiers.org/ncbigene:{{entrezgene}}" },
-          { "tpl": "https://www.ensembl.org/id/{{ensembl.gene}}" },
-          { "tpl": "https://identifiers.org/ncbigene:{{_id}}", "numeric": true },
-          { "tpl": "https://www.ensembl.org/id/{{_id}}" }
+          {
+            "tpl": "https://identifiers.org/ncbigene:{{entrezgene}}"
+          },
+          {
+            "tpl": "https://www.ensembl.org/id/{{ensembl.gene}}"
+          },
+          {
+            "tpl": "https://identifiers.org/ncbigene:{{_id}}",
+            "numeric": true
+          },
+          {
+            "tpl": "https://www.ensembl.org/id/{{_id}}"
+          }
         ],
         "scheme": "geneAccessionId",
         "xrefs": {
@@ -538,37 +547,49 @@
       "db": "mgi",
       "label": "MGI",
       "uri": "https://www.informatics.jax.org/allele/MGI:{{id_suffix}}",
-      "provider_aliases": ["MOUSE"]
+      "provider_aliases": [
+        "MOUSE"
+      ]
     },
     "RGD": {
       "db": "rgd",
       "label": "RGD",
       "uri": "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:{{id_suffix}}",
-      "provider_aliases": ["RAT"]
+      "provider_aliases": [
+        "RAT"
+      ]
     },
     "ZFIN": {
       "db": "zfin",
       "label": "ZFIN",
       "uri": "https://zfin.org/{{id_suffix}}",
-      "provider_aliases": ["ZEBRAFISH"]
+      "provider_aliases": [
+        "ZEBRAFISH"
+      ]
     },
     "FB": {
       "db": "flybase",
       "label": "FlyBase",
       "uri": "https://flybase.org/reports/{{id_suffix}}.html",
-      "provider_aliases": ["FLY"]
+      "provider_aliases": [
+        "FLY"
+      ]
     },
     "XENBASE": {
       "db": "xenbase",
       "label": "Xenbase",
       "uri": "https://www.xenbase.org/entry/{{id_suffix}}",
-      "provider_aliases": ["XENOPUS"]
+      "provider_aliases": [
+        "XENOPUS"
+      ]
     },
     "WB": {
       "db": "wormbase",
       "label": "WormBase",
       "uri": "https://www.wormbase.org/db/get?name={{id_suffix}};class=Variation",
-      "provider_aliases": ["WORM"]
+      "provider_aliases": [
+        "WORM"
+      ]
     },
     "ENS": {
       "db": "ensembl",
@@ -1907,7 +1928,6 @@
             "obj": {
               "alleleSymbol": "$label",
               "alleleAccessionId": "$id",
-              "geneMutationType": "$mutation_type",
               "geneSymbol": "$gene_symbol",
               "geneAccessionId": "$gene_id"
             }
@@ -1974,9 +1994,6 @@
               "subject": "Strain: $label",
               "subjectScheme": "speciesBackground",
               "valueURI": "$id"
-            },
-            "obj": {
-              "lineType": "$lineType"
             }
           }
         },
@@ -1998,7 +2015,15 @@
               "8364"
             ]
           },
-          "bind_to": "lineType"
+          "bind_to": "lineType",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "Line type: $value",
+              "subjectScheme": "lineType"
+            }
+          }
         },
         {
           "id": "mutationType_display",
@@ -2040,7 +2065,8 @@
             "alleleAccessionId",
             "geneMutationType",
             "geneChromosomeLocation",
-            "TransgeneOrigin"
+            "TransgeneOrigin",
+            "lineType"
           ]
         },
         "labels": {
@@ -2048,7 +2074,8 @@
           "geneChromosomeLocation": "Gene Chromosome Location",
           "alleleAccessionId": "Allele",
           "geneMutationType": "Mutation Type",
-          "TransgeneOrigin": "Transgene Origin"
+          "TransgeneOrigin": "Transgene Origin",
+          "lineType": "Line Type"
         },
         "accent_color": "#7c3aed",
         "display_type": "composite"
@@ -2247,7 +2274,10 @@
       "display_mapping": {
         "source": "subjects",
         "filter": {
-          "subjectScheme": ["DOID", "UPHENO"]
+          "subjectScheme": [
+            "DOID",
+            "UPHENO"
+          ]
         },
         "display_type": "list_links"
       }

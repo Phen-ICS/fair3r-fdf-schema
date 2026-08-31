@@ -200,6 +200,8 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
   "type": "api_search",
   "api": "mygene",
   "allow_manual": true,
+  "show_xrefs": true,
+  "xref_concept": "Gene",
   "placeholder": "E.g. Apoe...",
   "output": {
     "path": "subjects",
@@ -212,6 +214,9 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
   }
 }
 ```
+
+- **`show_xrefs`** — displays the selected result's cross-reference links (its mapper's `xrefs` / `xref_from_extra`, see [Mapper extras & cross-references](#mapper-extras--cross-references)) under the field
+- **`xref_concept`** — labels which concept those cross-references belong to (e.g. `"Gene"`, `"Allele"`), so the app can group/tell apart the xrefs of two different `api_search` fields shown in the same repeatable row (e.g. `gene_search`'s MGI/RGD/ZFIN links vs. `allele_search`'s own MGI allele / Alliance links)
 
 ### `preset_or_search` — quick presets + API fallback
 
@@ -251,13 +256,13 @@ A plain field can be wired to copy a value out of a related `api_search` field's
   "type": "text",
   "allow_manual": true,
   "dependent_on_field": "allele_search",
-  "bind_to": "geneMutationType",
+  "bind_to": "consequenceType || geneMutationType",
   "help": "Auto-filled from the allele search when the API provides it. If it stays empty or looks wrong, enter it manually."
 }
 ```
 
 - **`update_display_field`** (on the `api_search` field) — names the field that should receive data from the selected result
-- **`bind_to`** (on the display field) — the key read from the selected result's `mapper.extra` (see [Mapper extras & cross-references](#mapper-extras--cross-references))
+- **`bind_to`** (on the display field) — the key read from the selected result's `mapper.extra` (see [Mapper extras & cross-references](#mapper-extras--cross-references)); accepts a `"a || b"` fallback chain, tried in order, same as an output `tpl`
 - **`dependent_on_field`** — the field that triggers the auto-fill, and whose changes should reset this one
 - Leave off `readonly` (or set it `false`) so the field stays editable, and write a `help` text that tells the user when to fill it in themselves
 
@@ -273,7 +278,6 @@ Every field that should persist data needs an `output` block:
 | `mode` | How to write: `set`, `append`, `set_int`, `collect_object`, `append_if`, etc. |
 | `tpl` | Template for the output object (`$value`, `$label`, `$id` placeholders) |
 | `obj_key` | Key inside a repeated object (for repeatable sections) |
-| `xref_key` | Field name for cross-references |
 
 Common modes:
 
@@ -729,9 +733,11 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `api_by_taxon` | Dynamic API selection by organism |
 | `query_mode` | Special query mode (`server_side_lookup`, etc.) |
 | `on_change` | Actions triggered on field change |
-| `bind_to` | Reads a key from a related result's `mapper.extra` into this field's value, editable unless `readonly` |
+| `bind_to` | Reads a key (or `"a || b"` fallback chain) from a related result's `mapper.extra` into this field's value, editable unless `readonly` |
 | `update_display_field` | On an `api_search` field: which field to push the selected result's `extra` data into |
 | `dependent_on_field` | The field whose selection/change drives this field's auto-fill or reset |
+| `show_xrefs` | On an `api_search` field: display the selected result's cross-reference links under the field |
+| `xref_concept` | On an `api_search` field: labels which concept (`"Gene"`, `"Allele"`…) its cross-references belong to, so several such fields in the same row don't get their xrefs mixed up |
 | `mapper.extra` | Per-item key/value data carried on an API result, read via `bind_to` or `$key` in `output.obj` |
 | `mapper.xrefs` / `xref_from_extra` | Cross-reference links shown for a result, static or derived from `extra` |
 | `mapper.id_candidates` | Fallback `id` templates tried in order when the primary one resolves empty |
@@ -864,3 +870,12 @@ Add an entry here for each significant schema change:
 - Fixed mutation-type auto-fill in the 5 `alliance_allele_search_*` APIs (mouse, rat, danio, dmel, cel): `alterationType` — used since the Alliance migration — always equals the literal string `"allele"` (or `"allele with one variant"`), it's a category, not a mutation description, so auto-fill was silently wrong for mouse/rat and always empty for the others. `consequenceType`/`geneMutationType` now read `molecularConsequence[0] || variantType[0]` instead, which carries the real value (e.g. `missense_variant`, `stop_gained`, `point_mutation`) when the Alliance API has variant-level data for that allele, and stays empty otherwise (letting the user fill `mutationType_display` manually, as intended)
 - Added a `detail_fetch` to the `alliance_allele_search_mouse` / `alliance_allele_search_rat` mappers: after an allele is selected, it calls `https://www.alliancegenome.org/api/allele/{{id}}` and pulls the free-text `mutation_description` note into `geneMutationType`/`consequenceType`, giving mouse and rat a real mutation description instead of relying only on `molecularConsequence`/`variantType` (which the search endpoint often doesn't return for allele-level results)
 - Bumped schema version to 3.0.2
+
+## [2026-08-31]
+- Added `xref_concept` to `gene_search` (`"Gene"`) and `allele_search` (`"Allele"`) — tags which concept a field's cross-references belong to, so the app can label/group the Gene xrefs (MGI, RGD, ZFIN…) separately from the Allele xrefs (MGI allele page, Alliance…) when both are shown for the same gene/allele row
+- Removed `gene_search`'s `output.xref_key: "identifiers"`, superseded by `xref_concept`
+- `mutationType_display`'s `bind_to` now reads `"consequenceType || geneMutationType"` instead of just `"geneMutationType"`, so it also picks up the value when only `consequenceType` was populated (e.g. before a `detail_fetch` resolves)
+- Fixed the top-level schema `version` field, which was still `3.0.0` while `meta.changelog` had already moved to `3.0.2`
+- Fixed `xenopus_line_type` (the Xenbase "Line Type" field) never actually persisting its value: it had a `bind_to` for display but no `output` block of its own, and the `lineType` it was folded into on `genetic_background` wasn't wired to a subject either. It now writes its own `"Line type: $value"` subject with `subjectScheme: "lineType"`, added to the `genes` section's `display_mapping` filter/labels so it shows up on the dataset page
+- Removed `allele_search`'s dead `output.obj.geneMutationType: "$mutation_type"` mapping — it referenced a key no API ever populates, and mutation type is now handled entirely by the dedicated `mutationType_display` field
+- Bumped schema version to 3.0.3
