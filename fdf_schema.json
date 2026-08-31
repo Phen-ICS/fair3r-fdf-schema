@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -1765,6 +1765,7 @@
           "label": "Gene Symbol, Name or Identifier",
           "type": "api_search",
           "api": "mygene",
+          "xref_concept": "Gene",
           "api_by_taxon": {
             "10090": "mygene",
             "10116": "mygene",
@@ -1797,7 +1798,6 @@
               "subjectScheme": "$scheme",
               "valueURI": "$id"
             },
-            "xref_key": "identifiers",
             "also_description": true,
             "obj": {
               "geneSymbol": "$label",
@@ -1854,6 +1854,7 @@
           "label": "Allele (Mutation)",
           "type": "api_search",
           "api": "ensembl_allele",
+          "xref_concept": "Allele",
           "api_by_taxon": {
             "10090": "alliance_allele_search_mouse",
             "10116": "alliance_allele_search_rat",
@@ -2011,7 +2012,7 @@
             "field": "gene_search",
             "not_empty": true
           },
-          "bind_to": "geneMutationType",
+          "bind_to": "consequenceType || geneMutationType",
           "help": "Auto-filled from the allele search above when the API provides it (reliable for mouse and rat; not always for other species). If it stays empty or looks wrong, enter it manually. Common examples: missense_variant, nonsense_variant (stop_gained), frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout.",
           "placeholder": "E.g. missense_variant",
           "output": {
