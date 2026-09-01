@@ -1,5 +1,5 @@
 {
-  "version": "3.0.3",
+  "version": "3.0.4",
   "locale": "fr",
   "strings": {
     "apis.alliance_allele_search_cel.label": "Recherche d'allèles Alliance Genome (Caenorhabditis elegans)",
@@ -117,6 +117,7 @@
     "sections.genes.display_mapping.labels.geneChromosomeLocation": "Localisation chromosomique du gène",
     "sections.genes.display_mapping.labels.geneMutationType": "Type de mutation",
     "sections.genes.display_mapping.labels.lineType": "Type de lignée",
+    "sections.genes.display_mapping.labels.xenopusStrainLine": "Souche / Lignée",
     "sections.genes.fields.allele_identifier_free.help": "Pour les primates, aucune base d'allèles curatée n'est disponible via l'API. Saisissez manuellement l'identifiant d'allèle ou de variant (p. ex. ID rs dbSNP, ID variant Ensembl ou identifiant de laboratoire personnalisé).",
     "sections.genes.fields.allele_identifier_free.label": "Identifiant d'allèle (texte libre)",
     "sections.genes.fields.allele_identifier_free.placeholder": "Ex. : rs123456, ENSVAR..., identifiant d'allèle personnalisé",
