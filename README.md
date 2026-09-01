@@ -207,7 +207,7 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
     "path": "subjects",
     "mode": "append",
     "tpl": {
-      "subject": "Gene: $label",
+      "subject": "$label",
       "subjectScheme": "$scheme",
       "valueURI": "$id"
     }
@@ -217,6 +217,7 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
 
 - **`show_xrefs`** — displays the selected result's cross-reference links (its mapper's `xrefs` / `xref_from_extra`, see [Mapper extras & cross-references](#mapper-extras--cross-references)) under the field
 - **`xref_concept`** — labels which concept those cross-references belong to (e.g. `"Gene"`, `"Allele"`), so the app can group/tell apart the xrefs of two different `api_search` fields shown in the same repeatable row (e.g. `gene_search`'s MGI/RGD/ZFIN links vs. `allele_search`'s own MGI allele / Alliance links)
+- Don't hardcode a label prefix into `subject` (e.g. `"Gene: $label"`) — write the raw value and let `display_mapping.labels[subjectScheme]` supply the prefix shown on the dataset page, see [Display mapping](#display-mapping)
 
 ### `preset_or_search` — quick presets + API fallback
 
@@ -300,6 +301,13 @@ Control how data renders on the dataset page:
   "display_type": "list_links"
 }
 ```
+
+| Key | Description |
+|---|---|
+| `source` | Which output path(s) to read (`"subjects"`, `["subjects"]`, `"fundingReferences"`…) |
+| `filter` | Restricts to matching entries, e.g. `{ "subjectScheme": "GeneID" }` or `{ "subjectScheme": [...] }` for several schemes at once (used by `composite` to pull multiple fields into one block) |
+| `labels` | Maps each `subjectScheme` in `filter` to the label shown before its value on the dataset page (mainly for `composite`), e.g. `{ "geneAccessionId": "Gene" }` — this is why field `output.tpl.subject` should hold the raw value, not a hardcoded `"Gene: $label"` prefix |
+| `display_type` | How the entries are rendered, see table below |
 
 Available display types:
 
@@ -753,6 +761,7 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `output.tpl` | Value mapping template |
 | `output.obj` | Auxiliary fields for enrichment |
 | `display_mapping` | Dataset page rendering rules |
+| `display_mapping.labels` | Maps a `subjectScheme` to the label shown before its value on the dataset page — keep the prefix here, not baked into `output.tpl.subject` |
 
 ---
 
