@@ -879,3 +879,8 @@ Add an entry here for each significant schema change:
 - Fixed `xenopus_line_type` (the Xenbase "Line Type" field) never actually persisting its value: it had a `bind_to` for display but no `output` block of its own, and the `lineType` it was folded into on `genetic_background` wasn't wired to a subject either. It now writes its own `"Line type: $value"` subject with `subjectScheme: "lineType"`, added to the `genes` section's `display_mapping` filter/labels so it shows up on the dataset page
 - Removed `allele_search`'s dead `output.obj.geneMutationType: "$mutation_type"` mapping — it referenced a key no API ever populates, and mutation type is now handled entirely by the dedicated `mutationType_display` field
 - Bumped schema version to 3.0.3
+
+## [2026-09-01]
+- Removed the hardcoded label prefixes (`"Strain: $label"`, `"Gene: $label"`, `"Transgene origin: $label"`, `"Gene locus: $value"`, `"Allele: $label"`, `"Line type: $value"`, `"Mutation type: $value"`) from the `subject` templates across the `strain` and `genes` sections — the raw value is now written as-is, since the dataset page already shows each subject's label from `display_mapping.labels`/`subjectScheme`, so the old prefix just duplicated it
+- Gave the Xenopus `genetic_background` field (Xenbase mutant/transgenic line search) its own `xenopusStrainLine` subject scheme instead of reusing the mouse/rat `strain` section's `speciesBackground` scheme; added it to the `genes` section's `display_mapping` filter and labels as "Strain / Line"
+- Bumped schema version to 3.0.4
