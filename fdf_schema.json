@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.3 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.4 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -1672,7 +1672,7 @@
             "path": "subjects",
             "mode": "append",
             "tpl": {
-              "subject": "Strain: $label",
+              "subject": "$label",
               "subjectScheme": "speciesBackground",
               "valueURI": "$id"
             },
@@ -1815,7 +1815,7 @@
             "path": "subjects",
             "mode": "append",
             "tpl": {
-              "subject": "Gene: $label",
+              "subject": "$label",
               "subjectScheme": "$scheme",
               "valueURI": "$id"
             },
@@ -1845,7 +1845,7 @@
             "path": "subjects",
             "mode": "append_if",
             "tpl": {
-              "subject": "Transgene origin: $label",
+              "subject": "$label",
               "subjectScheme": "TransgeneOrigin",
               "valueURI": "$id",
               "schemeURI": "http://purl.obolibrary.org/obo/"
@@ -1864,7 +1864,7 @@
             "path": "subjects",
             "mode": "append_if",
             "tpl": {
-              "subject": "Gene locus: $value",
+              "subject": "$value",
               "subjectScheme": "geneChromosomeLocation",
               "valueURI": "$value"
             }
@@ -1921,7 +1921,7 @@
             "path": "subjects",
             "mode": "append",
             "tpl": {
-              "subject": "Allele: $label",
+              "subject": "$label",
               "subjectScheme": "alleleAccessionId",
               "valueURI": "$id"
             },
@@ -1956,7 +1956,7 @@
             "path": "subjects",
             "mode": "append_if",
             "tpl": {
-              "subject": "Allele: $value",
+              "subject": "$value",
               "subjectScheme": "alleleAccessionId",
               "valueURI": "$value"
             },
@@ -1991,8 +1991,8 @@
             "path": "subjects",
             "mode": "append",
             "tpl": {
-              "subject": "Strain: $label",
-              "subjectScheme": "speciesBackground",
+              "subject": "$label",
+              "subjectScheme": "xenopusStrainLine",
               "valueURI": "$id"
             }
           }
@@ -2020,7 +2020,7 @@
             "path": "subjects",
             "mode": "append_if",
             "tpl": {
-              "subject": "Line type: $value",
+              "subject": "$value",
               "subjectScheme": "lineType"
             }
           }
@@ -2044,7 +2044,7 @@
             "path": "subjects",
             "mode": "append_if",
             "tpl": {
-              "subject": "Mutation type: $value",
+              "subject": "$value",
               "subjectScheme": "geneMutationType",
               "valueURI": "$value"
             },
@@ -2065,17 +2065,19 @@
             "alleleAccessionId",
             "geneMutationType",
             "geneChromosomeLocation",
+            "xenopusStrainLine",
             "TransgeneOrigin",
             "lineType"
           ]
         },
         "labels": {
           "geneAccessionId": "Gene",
+          "TransgeneOrigin": "Transgene Origin",
           "geneChromosomeLocation": "Gene Chromosome Location",
           "alleleAccessionId": "Allele",
-          "geneMutationType": "Mutation Type",
-          "TransgeneOrigin": "Transgene Origin",
-          "lineType": "Line Type"
+          "xenopusStrainLine": "Strain / Line",
+          "lineType": "Line Type",
+          "geneMutationType": "Mutation Type"
         },
         "accent_color": "#7c3aed",
         "display_type": "composite"
