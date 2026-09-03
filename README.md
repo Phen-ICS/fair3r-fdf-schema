@@ -893,3 +893,11 @@ Add an entry here for each significant schema change:
 - Removed the hardcoded label prefixes (`"Strain: $label"`, `"Gene: $label"`, `"Transgene origin: $label"`, `"Gene locus: $value"`, `"Allele: $label"`, `"Line type: $value"`, `"Mutation type: $value"`) from the `subject` templates across the `strain` and `genes` sections — the raw value is now written as-is, since the dataset page already shows each subject's label from `display_mapping.labels`/`subjectScheme`, so the old prefix just duplicated it
 - Gave the Xenopus `genetic_background` field (Xenbase mutant/transgenic line search) its own `xenopusStrainLine` subject scheme instead of reusing the mouse/rat `strain` section's `speciesBackground` scheme; added it to the `genes` section's `display_mapping` filter and labels as "Strain / Line"
 - Bumped schema version to 3.0.4
+
+---
+
+## Authors & credits
+
+Developed by the [**Phen-ICS**](https://www.phen-ics.cnrs.fr/) platform at the [**IGBMC**](https://www.igbmc.fr/) (Institut de Génétique et de Biologie Moléculaire et Cellulaire), [**CNRS**](https://www.cnrs.fr/).
+
+Licensed under [CeCILL-B](LICENSE).
