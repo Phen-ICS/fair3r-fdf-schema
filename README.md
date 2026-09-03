@@ -898,6 +898,6 @@ Add an entry here for each significant schema change:
 
 ## Authors & credits
 
-Developed by the **Phen-ICS** platform at the **IGBMC** (Institut de Génétique et de Biologie Moléculaire et Cellulaire), under the **CNRS**.
+Developed by the [**Phen-ICS**](https://www.phen-ics.cnrs.fr/) platform at the [**IGBMC**](https://www.igbmc.fr/) (Institut de Génétique et de Biologie Moléculaire et Cellulaire), [**CNRS**](https://www.cnrs.fr/).
 
 Licensed under [CeCILL-B](LICENSE).
