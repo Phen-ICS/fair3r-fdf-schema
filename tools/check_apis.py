@@ -25,7 +25,6 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "fdf_schema.json"
@@ -57,7 +56,7 @@ def build_probe_url(entry: dict) -> str:
     return f"{url}{separator}{urllib.parse.urlencode(params)}"
 
 
-def check_one(name: str, entry: dict) -> tuple[str, Optional[int], Optional[str]]:
+def check_one(name: str, entry: dict) -> tuple[str, int | None, str | None]:
     """Returns (status, http_status, error_message). status is one of UP/DOWN/SKIPPED."""
     url = entry["url"]
     if not url.startswith("http"):
