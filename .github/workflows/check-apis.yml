@@ -1,0 +1,17 @@
+name: Check external APIs
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    name: Probe APIs used by fdf_schema.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check API liveness
+        run: python tools/check_apis.py
