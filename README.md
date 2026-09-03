@@ -849,6 +849,20 @@ the CKAN extension maintainers to add the locale to `SUPPORTED_SCHEMA_LOCALES`.
 
 ---
 
+## API health check
+
+A [scheduled GitHub Action](.github/workflows/check-apis.yml) runs
+`tools/check_apis.py` daily to make sure every external API listed in the
+top-level `apis` block is still reachable. An API only counts as down on a
+connection error, timeout, or 5xx response — a 4xx still means the host is
+alive. Run it locally with:
+
+```bash
+python tools/check_apis.py
+```
+
+---
+
 ## Changelog
 
 Add an entry here for each significant schema change:

@@ -17,8 +17,8 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Dict, Iterator, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "fdf_schema.json"
@@ -43,7 +43,7 @@ def _safe_key_part(value, fallback: str) -> str:
     text = str(value).strip()
     if not text:
         return fallback
-    if text.startswith("http://") or text.startswith("https://"):
+    if text.startswith(("http://", "https://")):
         text = text.rstrip("/").rsplit("/", 1)[-1]
     text = re.sub(r"[^A-Za-z0-9_-]+", "_", text)
     return text or fallback
@@ -56,7 +56,7 @@ def _option_key(option: dict, index: int) -> str:
     return str(index)
 
 
-def iter_schema_i18n_entries(schema: dict) -> Iterator[Tuple[str, str]]:
+def iter_schema_i18n_entries(schema: dict) -> Iterator[tuple[str, str]]:
     """Yield (stable_key, english_value) pairs for translatable schema strings."""
     if not isinstance(schema, dict):
         return
@@ -156,9 +156,7 @@ def load_sidecar(locale: str) -> dict:
     return strings if isinstance(strings, dict) else {}
 
 
-def build_i18n_sidecar(
-    schema: dict, locale: str, strings: Optional[dict] = None
-) -> dict:
+def build_i18n_sidecar(schema: dict, locale: str, strings: dict | None = None) -> dict:
     entries = dict(iter_schema_i18n_entries(schema))
     merged = {key: "" for key in sorted(entries)}
     existing = load_sidecar(locale)
@@ -185,7 +183,7 @@ def missing_schema_i18n_keys(schema: dict, locale: str) -> list:
     return missing
 
 
-def cmd_template(locale: str, output: Optional[Path]) -> int:
+def cmd_template(locale: str, output: Path | None) -> int:
     schema = load_schema()
     sidecar = build_i18n_sidecar(schema, locale)
     destination = output or sidecar_path(locale)
@@ -203,7 +201,10 @@ def cmd_check(locale: str) -> int:
     if not missing:
         print(f"All schema i18n keys are translated for {locale}.")
         return 0
-    print(f"Missing or empty translations for {locale} ({len(missing)} keys):", file=sys.stderr)
+    print(
+        f"Missing or empty translations for {locale} ({len(missing)} keys):",
+        file=sys.stderr,
+    )
     for key in missing:
         print(key, file=sys.stderr)
     return 1
