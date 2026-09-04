@@ -280,6 +280,7 @@
       "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
@@ -336,6 +337,7 @@
       "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
@@ -379,6 +381,7 @@
       "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
@@ -414,6 +417,7 @@
       "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
@@ -449,6 +453,7 @@
       "dynamic_source_tag": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
@@ -484,6 +489,7 @@
       "query_prefix_with_gene": true,
       "url": "https://www.alliancegenome.org/api/search",
       "method": "GET",
+      "query_mode": "server_side_lookup",
       "query_param": "q",
       "headers": {
         "Accept": "application/json"
