@@ -494,6 +494,7 @@ Beyond `label` / `sublabel` / `id` / `scheme`, a mapper can attach extra per-ite
 | `xrefs` | Named cross-reference links (`id`/`label`/`uri`, gated by `condition`) shown alongside the result, keyed by source (e.g. `mgi`, `alliance`) |
 | `xref_from_extra` | Builds the cross-reference display from `extra` instead of a static `xrefs` block |
 | `id_candidates` | Ordered fallback list of id templates, tried when the primary `id` template resolves empty (e.g. a gene missing `entrezgene`) |
+| `array_dedupe_by_taxid` | For a result field that can hold several entries across species (e.g. `mygene`'s `ensembl.gene`), keeps only the one matching the result's own taxon: reads `path`/`field` to locate the array, `taxid_field` to match entries by taxon id, and falls back to `prefix_by_taxid` (an expected id-prefix per taxid, e.g. `ENSMUSG` for mouse) when the entry itself carries no usable taxid |
 | `detail_fetch` | After a result is selected, fetches a per-item detail endpoint and merges its data into `extra` (see below) |
 
 ### Detail fetch (secondary lookup after selection)
@@ -907,6 +908,10 @@ Add an entry here for each significant schema change:
 - Removed the hardcoded label prefixes (`"Strain: $label"`, `"Gene: $label"`, `"Transgene origin: $label"`, `"Gene locus: $value"`, `"Allele: $label"`, `"Line type: $value"`, `"Mutation type: $value"`) from the `subject` templates across the `strain` and `genes` sections — the raw value is now written as-is, since the dataset page already shows each subject's label from `display_mapping.labels`/`subjectScheme`, so the old prefix just duplicated it
 - Gave the Xenopus `genetic_background` field (Xenbase mutant/transgenic line search) its own `xenopusStrainLine` subject scheme instead of reusing the mouse/rat `strain` section's `speciesBackground` scheme; added it to the `genes` section's `display_mapping` filter and labels as "Strain / Line"
 - Bumped schema version to 3.0.4
+
+## [2026-09-07]
+- Added `array_dedupe_by_taxid` to `mygene`'s mapper: MyGene.info's `ensembl.gene` field can list an Ensembl gene id per species build, so this picks the one matching the result's own taxon (via `taxid_field`), falling back to the expected id prefix per taxid (`prefix_by_taxid`, e.g. `ENSMUSG` for mouse, `ENSRNOG` for rat, `ENSDARG` for zebrafish, `ENSORLG` for medaka, `ENSMAUG` for golden hamster, `FBgn` for fruit fly) when an entry has no usable taxid of its own
+- Bumped schema version to 3.0.5
 
 ---
 
