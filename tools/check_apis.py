@@ -20,6 +20,7 @@ and surfaces the problem.
 from __future__ import annotations
 
 import json
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -35,12 +36,10 @@ PROBE_VALUE = "test"
 
 
 def build_probe_url(entry: dict) -> str:
-    url = entry["url"]
-    if "{" in url:
-        # Path template (e.g. .../overlap/region/{species}/{region}) — no
-        # generic value to fill in, so just probe the host itself.
-        parsed = urllib.parse.urlparse(url)
-        return f"{parsed.scheme}://{parsed.netloc}/"
+    # Path template (e.g. .../overlap/region/{species}/{region}) — fill each
+    # placeholder with a generic value so the request still reaches the real
+    # route handler instead of an arbitrary/unknown path on the host.
+    url = re.sub(r"\{[^}]+\}", PROBE_VALUE, entry["url"])
 
     params = {}
     query_param = entry.get("query_param")
