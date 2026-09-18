@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 CNRS
+# SPDX-License-Identifier: CECILL-B
 """
 Daily liveness check for the external APIs referenced in fdf_schema.json.
 

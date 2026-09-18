@@ -919,4 +919,9 @@ Add an entry here for each significant schema change:
 
 Developed by the [**Phen-ICS**](https://www.phen-ics.cnrs.fr/) platform at the [**IGBMC**](https://www.igbmc.fr/) (Institut de Génétique et de Biologie Moléculaire et Cellulaire), [**CNRS**](https://www.cnrs.fr/).
 
-Licensed under [CeCILL-B](LICENSE).
+This repository mixes data and code, each under the license suited to it, declared [REUSE](https://reuse.software/)-style (texts in [LICENSES/](LICENSES/), per-file `SPDX-License-Identifier` — inline for `tools/` and `.github/workflows/`, via [REUSE.toml](REUSE.toml) for `fdf_schema.json`, `i18n/`, and `README.md`, which can't carry a comment header):
+
+- **`fdf_schema.json` and `i18n/`** (the data — schema declarations and translation strings, the main content of this repository) are licensed under [ODbL 1.0](LICENSES/ODbL-1.0.txt), the Open Data Commons Open Database License. Reuse and adaptation are free, including commercially, but any publicly used derivative schema must stay open under ODbL (or a compatible license) — see Section 4.4, Share Alike.
+- **Everything else** (`tools/`, `.github/workflows/`, this README) is licensed under [CeCILL-B](LICENSES/CECILL-B.txt), the CNRS/CEA/Inria free software license — attribution-only reuse.
+
+The root [LICENSE](LICENSE) file is a copy of the ODbL text, kept there so GitHub's license detection matches the repository's main content.
