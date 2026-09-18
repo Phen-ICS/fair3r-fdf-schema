@@ -1,0 +1,14 @@
+version = 1
+SPDX-PackageName = "fair3r-fdf-schema"
+SPDX-PackageSupplier = "CNRS"
+SPDX-PackageDownloadLocation = "https://github.com/Phen-ICS/fair3r-fdf-schema"
+
+[[annotations]]
+path = ["fdf_schema.json", "i18n/**"]
+SPDX-FileCopyrightText = "2026 CNRS"
+SPDX-License-Identifier = "ODbL-1.0"
+
+[[annotations]]
+path = ["README.md", ".gitignore"]
+SPDX-FileCopyrightText = "2026 CNRS"
+SPDX-License-Identifier = "CECILL-B"

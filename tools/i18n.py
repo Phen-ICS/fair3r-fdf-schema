@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 CNRS
+# SPDX-License-Identifier: CECILL-B
 """
 FDF schema sidecar i18n utilities for the fair3r-fdf-schema repository.
 
