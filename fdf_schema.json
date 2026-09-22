@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.5 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.1.0 - Added 'sex' field (organism section): PATO-backed Male/Female + non-ontology Not determined/Not applicable (in vitro), multi-check emitting one subjects[] entry per selection via append_from_array.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -690,6 +690,27 @@
         {
           "id": "https://credit.niso.org/contributor-roles/writing-review-editing/",
           "label": "Writing - Review and Editing"
+        }
+      ]
+    },
+    "sex_options": {
+      "label": "Sex",
+      "items": [
+        {
+          "id": "http://purl.obolibrary.org/obo/PATO_0000384",
+          "label": "Male"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/PATO_0000383",
+          "label": "Female"
+        },
+        {
+          "id": "not-determined",
+          "label": "Not determined"
+        },
+        {
+          "id": "not-applicable",
+          "label": "Not applicable (in vitro / no organism)"
         }
       ]
     },
@@ -1642,6 +1663,41 @@
               ]
             }
           ]
+        },
+        {
+          "id": "sex",
+          "label": "Sex",
+          "type": "checkbox_group",
+          "vocabulary": "sex_options",
+          "required": false,
+          "help": "Select Male and/or Female for the animals covered by this dataset. Use 'Not applicable' for in vitro / cell-based datasets with no organism, or 'Not determined' when sex was not assessed. PATO (Phenotype And Trait Ontology) backs Male/Female; 'Not determined'/'Not applicable' are administrative states PATO deliberately does not model as sex values.",
+          "options": [
+            {
+              "value": "http://purl.obolibrary.org/obo/PATO_0000384",
+              "label": "Male"
+            },
+            {
+              "value": "http://purl.obolibrary.org/obo/PATO_0000383",
+              "label": "Female"
+            },
+            {
+              "value": "not-determined",
+              "label": "Not determined"
+            },
+            {
+              "value": "not-applicable",
+              "label": "Not applicable (in vitro / no organism)"
+            }
+          ],
+          "output": {
+            "path": "subjects",
+            "mode": "append_from_array",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "sex",
+              "valueURI": "$id"
+            }
+          }
         }
       ],
       "display_mapping": {
@@ -1649,10 +1705,14 @@
           "subjects"
         ],
         "filter": {
-          "subjectScheme": "NCBITaxon"
+          "subjectScheme": [
+            "NCBITaxon",
+            "sex"
+          ]
         },
         "labels": {
-          "NCBITaxon": "Species"
+          "NCBITaxon": "Species",
+          "sex": "Sex"
         },
         "accent_color": "#2f855a",
         "display_type": "composite"
