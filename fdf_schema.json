@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.5 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.6 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -149,6 +149,20 @@
       "mapper": {
         "strategy": "obo_ontology",
         "scheme": "UBERON"
+      }
+    },
+    "ols_pato": {
+      "label": "PATO (OLS4)",
+      "url": "https://www.ebi.ac.uk/ols4/api/select",
+      "query_param": "q",
+      "extra_params": {
+        "ontology": "pato",
+        "rows": 10
+      },
+      "result_path": "response.docs",
+      "mapper": {
+        "strategy": "obo_ontology",
+        "scheme": "PATO"
       }
     },
     "mygene": {
@@ -629,6 +643,23 @@
         {
           "id": "__OTHER__",
           "label": "Other / free text"
+        }
+      ]
+    },
+    "sex_presets": {
+      "label": "Sex",
+      "items": [
+        {
+          "id": "http://purl.obolibrary.org/obo/PATO_0000383",
+          "label": "Female"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/PATO_0000384",
+          "label": "Male"
+        },
+        {
+          "id": "http://purl.obolibrary.org/obo/PATO_0001340",
+          "label": "Both (hermaphrodite)"
         }
       ]
     },
@@ -1642,6 +1673,26 @@
               ]
             }
           ]
+        },
+        {
+          "id": "sex",
+          "label": "Sex",
+          "type": "preset_or_search",
+          "vocabulary": "sex_presets",
+          "search_api": "ols_pato",
+          "allow_manual": false,
+          "placeholder": "Select or search PATO…",
+          "help": "Female and Male map to PATO's biological sex qualities (PATO:0000383 / PATO:0000384); Both maps to hermaphroditic (PATO:0001340). Leave empty if the sex isn't determined or isn't relevant — PATO obsoleted \"unknown sex\" (PATO:0001336) with the note \"Unknown is not a type of sex\", so there's no ontology term to select for it.",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "PATO",
+              "valueURI": "$id",
+              "schemeURI": "http://purl.obolibrary.org/obo/"
+            }
+          }
         }
       ],
       "display_mapping": {
@@ -1649,10 +1700,14 @@
           "subjects"
         ],
         "filter": {
-          "subjectScheme": "NCBITaxon"
+          "subjectScheme": [
+            "NCBITaxon",
+            "PATO"
+          ]
         },
         "labels": {
-          "NCBITaxon": "Species"
+          "NCBITaxon": "Species",
+          "PATO": "Sex"
         },
         "accent_color": "#2f855a",
         "display_type": "composite"

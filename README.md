@@ -913,6 +913,11 @@ Add an entry here for each significant schema change:
 - Added `array_dedupe_by_taxid` to `mygene`'s mapper: MyGene.info's `ensembl.gene` field can list an Ensembl gene id per species build, so this picks the one matching the result's own taxon (via `taxid_field`), falling back to the expected id prefix per taxid (`prefix_by_taxid`, e.g. `ENSMUSG` for mouse, `ENSRNOG` for rat, `ENSDARG` for zebrafish, `ENSORLG` for medaka, `ENSMAUG` for golden hamster, `FBgn` for fruit fly) when an entry has no usable taxid of its own
 - Bumped schema version to 3.0.5
 
+## [2026-09-22]
+- Added a `sex` field to the `organism` section, backed by the new `ols_pato` API and a `sex_presets` vocabulary: Female (PATO:0000383) and Male (PATO:0000384) are PATO's biological sex qualities, Both maps to hermaphroditic (PATO:0001340). No "Undetermined" preset — the field is optional, so clearing it already covers that, and PATO obsoleted "unknown sex" (PATO:0001336) with the note "Unknown is not a type of sex" anyway, so there'd be no ontology term to back it
+- Extended the `organism` section's `display_mapping` to a `composite` of both `NCBITaxon` and `PATO` subjects, labeled "Species" / "Sex"
+- Bumped schema version to 3.0.6
+
 ---
 
 ## Authors & credits
