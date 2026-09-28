@@ -86,9 +86,11 @@ def build_diagram(schema: dict) -> str:
     field_node_id: dict[tuple[str, str], str] = {}
     used_apis: set[str] = set()
     field_deps: list[tuple[str, str, str]] = []  # (from_field_key, to_field_key, label)
+    section_order: list[str] = []
 
     for section in schema.get("sections", []):
         sid = slug(section["id"])
+        section_order.append(f"sec_{sid}")
         title = escape_label(section.get("title", section["id"]))
         dm = section.get("display_mapping")
         accent = dm.get("accent_color") if isinstance(dm, dict) else None
@@ -148,6 +150,14 @@ def build_diagram(schema: dict) -> str:
             api_label = "<br/>".join(escape_label(p) for p in api_label_parts)
             lines.append(f'        api_{slug(api_name)}("{api_label}"):::apiNode')
         lines.append("    end")
+        section_order.append("apis_group")
+
+    # Invisible edges between consecutive sections force Mermaid's layout to
+    # stack them top-to-bottom instead of spreading same-rank subgraphs out
+    # sideways, since there aren't enough real edges between them to imply
+    # an order on their own.
+    for prev_id, next_id in zip(section_order, section_order[1:]):
+        lines.append(f"    {prev_id} ~~~ {next_id}")
 
     for src_sec, src_field, dst_sec, dst_field, rel_label in field_deps:
         src_id = field_node_id.get((src_sec, src_field))

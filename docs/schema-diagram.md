@@ -149,6 +149,19 @@ flowchart TB
         api_ror("ROR<br/>scheme: ROR<br/>api.ror.org"):::apiNode
         api_xenbase_mutant_lines("Xenbase Mutant Lines<br/>scheme: Strain"):::apiNode
     end
+    sec_title ~~~ sec_related_identifiers
+    sec_related_identifiers ~~~ sec_publisher
+    sec_publisher ~~~ sec_creators
+    sec_creators ~~~ sec_contributors
+    sec_contributors ~~~ sec_organism
+    sec_organism ~~~ sec_strain
+    sec_strain ~~~ sec_interventions
+    sec_interventions ~~~ sec_genes
+    sec_genes ~~~ sec_chemicals
+    sec_chemicals ~~~ sec_diet
+    sec_diet ~~~ sec_disease
+    sec_disease ~~~ sec_anatomy
+    sec_anatomy ~~~ apis_group
     f_genes_allele_search -.->|depends_on| f_genes_gene_search
     f_genes_allele_search -.->|pushes to| f_genes_mutationType_display
     f_genes_genetic_background -.->|depends_on| f_genes_gene_search
