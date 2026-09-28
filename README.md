@@ -864,6 +864,23 @@ python tools/check_apis.py
 
 ---
 
+## Schema diagram
+
+[docs/schema-diagram.md](docs/schema-diagram.md) is a Mermaid flowchart of
+the whole form: every section (colored by its own `display_mapping.accent_color`),
+every field with its type/ontology/vocabulary, the external APIs each field
+calls, and the `depends_on` / auto-fill relations between fields. A
+[GitHub Action](.github/workflows/update-diagram.yml) regenerates it and opens
+a pull request whenever `fdf_schema.json` changes on `main`, so it can't
+silently go stale — merge that PR, don't hand-edit the file. Regenerate it
+locally with:
+
+```bash
+python tools/generate_diagram.py
+```
+
+---
+
 ## Changelog
 
 Add an entry here for each significant schema change:
