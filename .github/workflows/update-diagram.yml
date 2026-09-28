@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 CNRS
+# SPDX-License-Identifier: CECILL-B
+name: Update schema diagram
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "fdf_schema.json"
+  workflow_dispatch: {}
+
+jobs:
+  regenerate:
+    name: Regenerate docs/schema-diagram.md
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Generate diagram
+        run: python tools/generate_diagram.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- docs/schema-diagram.md; then
+            echo "Diagram unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/schema-diagram.md
+          git commit -m "docs: regenerate schema diagram [skip ci]"
+          git push
