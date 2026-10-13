@@ -12,7 +12,7 @@ flowchart TB
         f_title_resource_type("resource_type<br/>type: select"):::plainField
         style sec_title fill:#1f6feb1a,stroke:#1f6feb,stroke-width:2px
     end
-    subgraph sec_related_identifiers["Related Resources & References"]
+    subgraph sec_related_identifiers["Related Resources &amp; References"]
         direction TB
         f_related_identifiers_related_identifier("related_identifier<br/>type: text"):::plainField
         f_related_identifiers_related_identifier_type("related_identifier_type<br/>type: select"):::plainField
@@ -32,9 +32,9 @@ flowchart TB
         f_creators_given_name("given_name<br/>type: text"):::plainField
         f_creators_family_name("family_name<br/>type: text"):::plainField
         f_creators_organization_name("organization_name<br/>type: text"):::plainField
-        f_creators_organization_ror("organization_ror<br/>type: api_search<br/>api: ROR<br/>ontology: ROR"):::apiField
-        f_creators_orcid("orcid<br/>type: api_search<br/>api: ORCID<br/>ontology: ORCID"):::apiField
-        f_creators_affiliation("affiliation<br/>type: api_search<br/>api: ROR<br/>ontology: ROR"):::apiField
+        f_creators_organization_ror("organization_ror<br/>type: api_search<br/>api: ROR<br/>ontology: ROR<br/>uri: https://ror.org/"):::apiField
+        f_creators_orcid("orcid<br/>type: api_search<br/>api: ORCID<br/>ontology: ORCID<br/>uri: https://orcid.org/"):::apiField
+        f_creators_affiliation("affiliation<br/>type: api_search<br/>api: ROR<br/>ontology: ROR<br/>uri: https://ror.org/"):::apiField
         f_creators_contributor_roles("contributor_roles<br/>type: multi_select<br/>vocab: credit_roles"):::plainField
         style sec_creators fill:#2563eb1a,stroke:#2563eb,stroke-width:2px
     end
@@ -45,20 +45,20 @@ flowchart TB
         f_contributors_given_name("given_name<br/>type: text"):::plainField
         f_contributors_family_name("family_name<br/>type: text"):::plainField
         f_contributors_organization_name("organization_name<br/>type: text"):::plainField
-        f_contributors_organization_ror("organization_ror<br/>type: api_search<br/>api: ROR<br/>ontology: ROR"):::apiField
-        f_contributors_orcid("orcid<br/>type: api_search<br/>api: ORCID<br/>ontology: ORCID"):::apiField
-        f_contributors_affiliation("affiliation<br/>type: api_search<br/>api: ROR<br/>ontology: ROR"):::apiField
+        f_contributors_organization_ror("organization_ror<br/>type: api_search<br/>api: ROR<br/>ontology: ROR<br/>uri: https://ror.org/"):::apiField
+        f_contributors_orcid("orcid<br/>type: api_search<br/>api: ORCID<br/>ontology: ORCID<br/>uri: https://orcid.org/"):::apiField
+        f_contributors_affiliation("affiliation<br/>type: api_search<br/>api: ROR<br/>ontology: ROR<br/>uri: https://ror.org/"):::apiField
         style sec_contributors fill:#7c3aed1a,stroke:#7c3aed,stroke-width:2px
     end
     subgraph sec_organism["Biological Model"]
         direction TB
-        f_organism_organism_choice("organism_choice<br/>type: preset_or_search<br/>api: NCBI Taxonomy (OLS4)<br/>ontology: NCBITaxon<br/>vocab: organism_presets"):::apiField
-        f_organism_sex("sex<br/>type: preset_or_search<br/>api: PATO (OLS4)<br/>ontology: PATO<br/>vocab: sex_presets"):::apiField
+        f_organism_organism_choice("organism_choice<br/>type: preset_or_search<br/>api: NCBI Taxonomy (OLS4)<br/>ontology: NCBITaxon<br/>uri: http://purl.obolibrary.org/obo/<br/>vocab: organism_presets"):::apiField
+        f_organism_sex("sex<br/>type: preset_or_search<br/>api: PATO (OLS4)<br/>ontology: PATO<br/>uri: http://purl.obolibrary.org/obo/<br/>vocab: sex_presets"):::apiField
         style sec_organism fill:#2f855a1a,stroke:#2f855a,stroke-width:2px
     end
     subgraph sec_strain["Genetic Background / Strain"]
         direction TB
-        f_strain_strain_search("strain_search<br/>type: api_search<br/>api: EFO (OLS4)<br/>ontology: speciesBackground"):::apiField
+        f_strain_strain_search("strain_search<br/>type: api_search<br/>api: EFO (OLS4)<br/>ontology: speciesBackground<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_strain fill:#7180961a,stroke:#718096,stroke-width:2px
     end
     subgraph sec_interventions["Experimental Interventions"]
@@ -69,37 +69,37 @@ flowchart TB
     subgraph sec_genes["Involved Genes"]
         direction TB
         f_genes_cross_species_gene("cross_species_gene<br/>type: checkbox_group"):::plainField
-        f_genes_gene_search("gene_search<br/>type: api_search<br/>api: MyGene.info<br/>ontology: geneAccessionId"):::apiField
-        f_genes_transgene_origin_species("transgene_origin_species<br/>type: api_search<br/>api: NCBI Taxonomy (OLS4)<br/>ontology: TransgeneOrigin"):::apiField
+        f_genes_gene_search("gene_search<br/>type: api_search<br/>api: MyGene.info<br/>ontology: geneAccessionId<br/>uri: https://identifiers.org/ncbigene:"):::apiField
+        f_genes_transgene_origin_species("transgene_origin_species<br/>type: api_search<br/>api: NCBI Taxonomy (OLS4)<br/>ontology: TransgeneOrigin<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_genes_gene_chromosome_location("gene_chromosome_location<br/>type: text<br/>ontology: geneChromosomeLocation"):::plainField
-        f_genes_allele_search("allele_search<br/>type: api_search<br/>api: Ensembl Allele / Alliance Genome Allele Search (Mus musculus) / Rat Genome Allele Search / Alliance Genome Allele Search (Danio rerio) / Alliance Genome Allele Search (Drosophila melanogaster) / Alliance Genome Allele Search (Caenorhabditis elegans) / Alliance Genome Variant Search<br/>ontology: alleleAccessionId"):::apiField
+        f_genes_allele_search("allele_search<br/>type: api_search<br/>api: Ensembl Allele / Alliance Genome Allele Search (Mus musculus) / Rat Genome Allele Search / Alliance Genome Allele Search (Danio rerio) / Alliance Genome Allele Search (Drosophila melanogaster) / Alliance Genome Allele Search (Caenorhabditis elegans) / Alliance Genome Variant Search<br/>ontology: alleleAccessionId<br/>uri: https://identifiers.org/ensembl:"):::apiField
         f_genes_allele_identifier_free("allele_identifier_free<br/>type: text<br/>ontology: alleleAccessionId"):::plainField
-        f_genes_genetic_background("genetic_background<br/>type: api_search<br/>api: Xenbase Mutant Lines<br/>ontology: xenopusStrainLine"):::apiField
+        f_genes_genetic_background("genetic_background<br/>type: api_search<br/>api: Xenbase Mutant Lines<br/>ontology: xenopusStrainLine<br/>uri: https://www.xenbase.org/xenbase/stockCenter/showLine.do?method=displayLine&amp;lineId="):::apiField
         f_genes_xenopus_line_type("xenopus_line_type<br/>type: preset_or_search<br/>ontology: lineType<br/>vocab: xenbase_line_types"):::plainField
         f_genes_mutationType_display("mutationType_display<br/>type: text<br/>ontology: geneMutationType"):::plainField
         style sec_genes fill:#7c3aed1a,stroke:#7c3aed,stroke-width:2px
     end
-    subgraph sec_chemicals["Molecules & Treatments"]
+    subgraph sec_chemicals["Molecules &amp; Treatments"]
         direction TB
-        f_chemicals_chem_search("chem_search<br/>type: api_search<br/>api: ChEBI<br/>ontology: ChEBI"):::apiField
+        f_chemicals_chem_search("chem_search<br/>type: api_search<br/>api: ChEBI<br/>ontology: ChEBI<br/>uri: https://www.ebi.ac.uk/chebi/searchId.do?chebiId="):::apiField
         f_chemicals_treatmentprotocol("treatmentprotocol<br/>type: select"):::plainField
         f_chemicals_treatmentdesign("treatmentdesign<br/>type: text"):::plainField
         style sec_chemicals fill:#dd6b201a,stroke:#dd6b20,stroke-width:2px
     end
     subgraph sec_diet["Diet / Feeding Regiment"]
         direction TB
-        f_diet_diet_search("diet_search<br/>type: api_search<br/>api: EFO Diet (OLS4)<br/>ontology: EFO"):::apiField
+        f_diet_diet_search("diet_search<br/>type: api_search<br/>api: EFO Diet (OLS4)<br/>ontology: EFO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_diet fill:#64748b1a,stroke:#64748b,stroke-width:2px
     end
     subgraph sec_disease["Disease Model"]
         direction TB
-        f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Disease Ontology (OLS4)<br/>ontology: DOID"):::apiField
-        f_disease_phenotype_search("phenotype_search<br/>type: api_search<br/>api: uPheno (OLS4)<br/>ontology: UPHENO"):::apiField
+        f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Disease Ontology (OLS4)<br/>ontology: DOID<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
+        f_disease_phenotype_search("phenotype_search<br/>type: api_search<br/>api: uPheno (OLS4)<br/>ontology: UPHENO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_disease fill:#64748b1a,stroke:#64748b,stroke-width:2px
     end
     subgraph sec_anatomy["Tissue / Organ of Interest"]
         direction TB
-        f_anatomy_anat_search("anat_search<br/>type: api_search<br/>api: UBERON (OLS4)<br/>ontology: UBERON"):::apiField
+        f_anatomy_anat_search("anat_search<br/>type: api_search<br/>api: UBERON (OLS4)<br/>ontology: UBERON<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_anatomy fill:#64748b1a,stroke:#64748b,stroke-width:2px
     end
     f_title_publication_year ~~~ f_title_resource_type
