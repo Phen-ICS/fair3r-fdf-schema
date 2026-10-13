@@ -35,7 +35,7 @@ def slug(text: str) -> str:
 
 
 def escape_label(text: str) -> str:
-    return str(text).replace('"', "'")
+    return str(text).replace("&", "&amp;").replace('"', "'")
 
 
 def collect_field_apis(field: dict) -> list[str]:
@@ -73,6 +73,50 @@ def field_scheme(field: dict, apis: dict, field_apis: list[str]) -> str | None:
     return "/".join(schemes) if schemes else None
 
 
+def _find_scheme_uri(value) -> str | None:
+    """Recursively search an output block for a declared schemeURI, under
+    whatever key/shape it's nested in (tpl.schemeURI, map.schemeURI inside a
+    wrap_array output, etc.)."""
+    if isinstance(value, dict):
+        for key, v in value.items():
+            if key.lower() == "schemeuri" and isinstance(v, str):
+                return v
+            found = _find_scheme_uri(v)
+            if found:
+                return found
+    elif isinstance(value, list):
+        for v in value:
+            found = _find_scheme_uri(v)
+            if found:
+                return found
+    return None
+
+
+# Ontologies served through OLS4's generic "obo_ontology" mapper strategy
+# all resolve through the OBO Foundry's PURL namespace, even on the fields
+# that don't redeclare schemeURI themselves.
+OBO_PURL_BASE = "http://purl.obolibrary.org/obo/"
+
+
+def resolve_scheme_uri(field: dict, apis: dict, field_apis: list[str]) -> str | None:
+    declared = _find_scheme_uri(field.get("output"))
+    if declared:
+        return declared
+
+    for api_name in field_apis:
+        api_def = apis.get(api_name, {})
+        mapper = api_def.get("mapper") or {}
+        if mapper.get("strategy") == "obo_ontology":
+            return OBO_PURL_BASE
+        for key in ("id", "uri"):
+            tpl = mapper.get(key)
+            if isinstance(tpl, str) and "{{" in tpl:
+                prefix = tpl.split("{{", 1)[0]
+                if prefix:
+                    return prefix
+    return None
+
+
 def build_diagram(schema: dict) -> str:
     apis = schema.get("apis", {})
     lines = ["flowchart TB"]
@@ -100,6 +144,7 @@ def build_diagram(schema: dict) -> str:
             ftype = field.get("type", "?")
             fapis = collect_field_apis(field)
             scheme = field_scheme(field, apis, fapis)
+            scheme_uri = resolve_scheme_uri(field, apis, fapis)
             vocab = field.get("vocabulary")
 
             label_parts = [field["id"], f"type: {ftype}"]
@@ -108,6 +153,8 @@ def build_diagram(schema: dict) -> str:
                 label_parts.append(f"api: {' / '.join(api_labels)}")
             if scheme:
                 label_parts.append(f"ontology: {scheme}")
+            if scheme_uri:
+                label_parts.append(f"uri: {scheme_uri}")
             if vocab:
                 label_parts.append(f"vocab: {vocab}")
             label = "<br/>".join(escape_label(p) for p in label_parts)
