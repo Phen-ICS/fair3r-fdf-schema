@@ -1,5 +1,5 @@
 {
-  "version": "3.0.7",
+  "version": "3.0.8",
   "locale": "fr",
   "strings": {
     "apis.alliance_allele_search_cel.label": "Recherche d'allèles Alliance Genome (Caenorhabditis elegans)",
@@ -11,9 +11,9 @@
     "apis.ensembl_allele.label": "Allèle Ensembl",
     "apis.mygene.label": "MyGene.info",
     "apis.ols_chebi.label": "ChEBI",
-    "apis.ols_doid.label": "Ontologie des maladies (OLS4)",
     "apis.ols_efo.label": "EFO (OLS4)",
     "apis.ols_efo_diet.label": "Régime alimentaire EFO (OLS4)",
+    "apis.ols_mondo.label": "Mondo Disease Ontology (OLS4)",
     "apis.ols_ncbitaxon.label": "Taxonomie NCBI (OLS4)",
     "apis.ols_pato.label": "PATO (OLS4)",
     "apis.ols_uberon.label": "UBERON (OLS4)",
@@ -104,8 +104,8 @@
     "sections.diet.fields.diet_search.label": "Régime alimentaire (EFO)",
     "sections.diet.fields.diet_search.placeholder": "Ex. : régime hyperlipidique, restriction calorique, régime occidental…",
     "sections.diet.title": "Régime alimentaire / alimentation",
-    "sections.disease.fields.disease_search.help": "Recherchez des maladies dans la Disease Ontology. Décrivez le modèle de maladie utilisé dans votre étude.",
-    "sections.disease.fields.disease_search.label": "Maladie modélisée (DOID)",
+    "sections.disease.fields.disease_search.help": "Recherchez des maladies dans la Mondo Disease Ontology, qui unifie la Disease Ontology, OMIM, Orphanet et NCIt. Décrivez le modèle de maladie utilisé dans votre étude.",
+    "sections.disease.fields.disease_search.label": "Maladie modélisée (MONDO)",
     "sections.disease.fields.disease_search.placeholder": "Ex. : maladie d'Alzheimer, diabète de type 2…",
     "sections.disease.fields.phenotype_search.help": "Recherchez les phénotypes et traits observables dans l'ontologie UPheno. Décrivez les caractéristiques phénotypiques observées dans votre modèle.",
     "sections.disease.fields.phenotype_search.label": "Phénotype observé (UPhenO)",

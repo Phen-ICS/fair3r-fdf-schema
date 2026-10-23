@@ -921,6 +921,8 @@ Add an entry here for each significant schema change:
 ## [2026-10-23]
 - Removed the `xenbase_mutant_lines` API and turned `sections.genes.genetic_background` (Xenopus "Strain / Line (Mutant)") into a free-text field: Xenbase now puts a reCAPTCHA in front of the pages the server-side lookup read (`geneAjax.do`, `searchLines.do`), so it always came back empty, and Xenbase publishes no API or download file for its lines. The value is still stored as a `xenopusStrainLine` subject (without a `valueURI`); `xenopus_line_type` is unchanged
 - Bumped schema version to 3.0.7
+- Switched `sections.disease.disease_search` from the Disease Ontology (`ols_doid`, scheme `DOID`) to the Mondo Disease Ontology (`ols_mondo`, scheme `MONDO`): about three times the terms in OLS4 (rare and genetic diseases from OMIM and Orphanet included), each with cross-references to DOID, OMIM, Orphanet, NCIt and MeSH, and better first hits for common queries (e.g. "Alzheimer disease", "Huntington disease"). `local: "true"` keeps only MONDO's own terms (OLS otherwise mixes in imported HP phenotypes). The section's `display_mapping` still lists `DOID`, for datasets saved before
+- Bumped schema version to 3.0.8
 
 ---
 
