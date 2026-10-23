@@ -1620,7 +1620,7 @@
           "search_api": "ols_ncbitaxon",
           "required": true,
           "allow_manual": false,
-          "placeholder": "Search in NCBI Taxonomy…",
+          "placeholder": "Scientific name in NCBI Taxonomy, e.g. Homo sapiens, Ovis aries…",
           "output": {
             "path": "subjects",
             "mode": "append",
@@ -2313,6 +2313,11 @@
             "DOID",
             "UPHENO"
           ]
+        },
+        "labels": {
+          "MONDO": "Disease Model",
+          "DOID": "Disease Model",
+          "UPHENO": "Phenotype"
         },
         "display_type": "list_links"
       }
