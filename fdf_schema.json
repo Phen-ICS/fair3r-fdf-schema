@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.7 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.8 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -123,18 +123,19 @@
         "scheme": "UPHENO"
       }
     },
-    "ols_doid": {
-      "label": "Disease Ontology (OLS4)",
+    "ols_mondo": {
+      "label": "Mondo Disease Ontology (OLS4)",
       "url": "https://www.ebi.ac.uk/ols4/api/select",
       "query_param": "q",
       "extra_params": {
-        "ontology": "doid",
-        "rows": 10
+        "ontology": "mondo",
+        "rows": 10,
+        "local": "true"
       },
       "result_path": "response.docs",
       "mapper": {
         "strategy": "obo_ontology",
-        "scheme": "DOID"
+        "scheme": "MONDO"
       }
     },
     "ols_uberon": {
@@ -1619,7 +1620,7 @@
           "search_api": "ols_ncbitaxon",
           "required": true,
           "allow_manual": false,
-          "placeholder": "Search in NCBI Taxonomy…",
+          "placeholder": "Scientific name in NCBI Taxonomy, e.g. Homo sapiens, Ovis aries…",
           "output": {
             "path": "subjects",
             "mode": "append",
@@ -2261,23 +2262,23 @@
       "repeatable": true,
       "repeat_label": "Disease",
       "add_label": "+ Add Disease",
-      "subject_scheme": "DOID",
+      "subject_scheme": "MONDO",
       "fields": [
         {
           "id": "disease_search",
-          "label": "Modeled Disease (DOID)",
+          "label": "Modeled Disease (MONDO)",
           "type": "api_search",
-          "api": "ols_doid",
+          "api": "ols_mondo",
           "allow_manual": true,
           "required": false,
-          "help": "Search for diseases in the Disease Ontology. Describe the disease model used in your study.",
+          "help": "Search for diseases in the Mondo Disease Ontology, which unifies the Disease Ontology, OMIM, Orphanet and NCIt. Describe the disease model used in your study.",
           "placeholder": "E.g. Alzheimer disease, Type 2 diabetes mellitus…",
           "output": {
             "path": "subjects",
             "mode": "append",
             "tpl": {
               "subject": "$label",
-              "subjectScheme": "DOID",
+              "subjectScheme": "MONDO",
               "valueURI": "$id"
             },
             "also_description": true
@@ -2308,9 +2309,13 @@
         "source": "subjects",
         "filter": {
           "subjectScheme": [
-            "DOID",
+            "MONDO",
             "UPHENO"
           ]
+        },
+        "labels": {
+          "MONDO": "Disease Model",
+          "UPHENO": "Phenotype"
         },
         "display_type": "list_links"
       }

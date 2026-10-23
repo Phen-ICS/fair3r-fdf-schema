@@ -93,7 +93,7 @@ flowchart TB
     end
     subgraph sec_disease["Disease Model"]
         direction TB
-        f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Disease Ontology (OLS4)<br/>ontology: DOID<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
+        f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Mondo Disease Ontology (OLS4)<br/>ontology: MONDO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_disease_phenotype_search("phenotype_search<br/>type: api_search<br/>api: uPheno (OLS4)<br/>ontology: UPHENO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_disease fill:#64748b1a,stroke:#64748b,stroke-width:2px
     end
