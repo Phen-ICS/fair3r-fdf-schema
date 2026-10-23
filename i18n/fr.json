@@ -104,7 +104,6 @@
     "sections.diet.fields.diet_search.label": "Régime alimentaire (EFO)",
     "sections.diet.fields.diet_search.placeholder": "Ex. : régime hyperlipidique, restriction calorique, régime occidental…",
     "sections.diet.title": "Régime alimentaire / alimentation",
-    "sections.disease.display_mapping.labels.DOID": "Modèle de maladie",
     "sections.disease.display_mapping.labels.MONDO": "Modèle de maladie",
     "sections.disease.display_mapping.labels.UPHENO": "Phénotype",
     "sections.disease.fields.disease_search.help": "Recherchez des maladies dans l'ontologie des maladies Mondo, qui réunit la Disease Ontology, OMIM, Orphanet et NCIt. Décrivez le modèle de maladie utilisé dans votre étude.",

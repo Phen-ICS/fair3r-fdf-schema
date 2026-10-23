@@ -2310,13 +2310,11 @@
         "filter": {
           "subjectScheme": [
             "MONDO",
-            "DOID",
             "UPHENO"
           ]
         },
         "labels": {
           "MONDO": "Disease Model",
-          "DOID": "Disease Model",
           "UPHENO": "Phenotype"
         },
         "display_type": "list_links"
