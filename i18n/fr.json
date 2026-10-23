@@ -1,5 +1,5 @@
 {
-  "version": "3.0.6",
+  "version": "3.0.7",
   "locale": "fr",
   "strings": {
     "apis.alliance_allele_search_cel.label": "Recherche d'allèles Alliance Genome (Caenorhabditis elegans)",
@@ -20,7 +20,6 @@
     "apis.ols_upheno.label": "UPhenotype (OLS4)",
     "apis.orcid.label": "ORCID",
     "apis.ror.label": "ROR",
-    "apis.xenbase_mutant_lines.label": "Lignées mutantes Xenbase",
     "meta.title": "Assistant d'enregistrement de jeux de données en science ouverte",
     "sections.anatomy.fields.anat_search.help": "Recherchez des structures anatomiques dans l'ontologie UBERON.",
     "sections.anatomy.fields.anat_search.label": "Tissu ou organe (UBERON)",
@@ -134,7 +133,7 @@
     "sections.genes.fields.gene_search.help": "Sélectionnez d'abord un modèle d'organisme, puis recherchez le gène (Apoe, MGI:88057, ENSMUSG…). La sélection d'un gène active la recherche d'allèles.",
     "sections.genes.fields.gene_search.label": "Symbole, nom ou identifiant du gène",
     "sections.genes.fields.gene_search.placeholder": "Ex. : Apoe, MGI:88057…",
-    "sections.genes.fields.genetic_background.help": "Pour Xenopus, utilisez des souches/lignées mutantes de Xenbase liées au gène sélectionné.",
+    "sections.genes.fields.genetic_background.help": "Pour Xenopus, saisissez la lignée mutante ou transgénique telle que nommée par Xenbase (ex. : Xtr.pax6 emOgino).",
     "sections.genes.fields.genetic_background.label": "Souche / lignée (mutante)",
     "sections.genes.fields.genetic_background.placeholder": "Ex. : Xtr.pax6 emOgino, Xtr.pax6 tmNXR",
     "sections.genes.fields.mutationType_display.help": "Rempli automatiquement à partir de la recherche d'allèle ci-dessus lorsque l'API le fournit (fiable pour la souris et le rat ; pas toujours pour les autres espèces). Si le champ reste vide ou semble incorrect, saisissez-le manuellement. Exemples courants : missense_variant (faux-sens), nonsense_variant (non-sens / stop_gained), frameshift_variant (décalage du cadre de lecture), deletion (délétion), insertion, duplication, inversion, splice_site_variant (variant du site d'épissage), synonymous_variant (synonyme), knockout, knock-in, conditional knockout (invalidation conditionnelle).",

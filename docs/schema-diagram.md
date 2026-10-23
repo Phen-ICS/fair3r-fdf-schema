@@ -74,7 +74,7 @@ flowchart TB
         f_genes_gene_chromosome_location("gene_chromosome_location<br/>type: text<br/>ontology: geneChromosomeLocation"):::plainField
         f_genes_allele_search("allele_search<br/>type: api_search<br/>api: Ensembl Allele / Alliance Genome Allele Search (Mus musculus) / Rat Genome Allele Search / Alliance Genome Allele Search (Danio rerio) / Alliance Genome Allele Search (Drosophila melanogaster) / Alliance Genome Allele Search (Caenorhabditis elegans) / Alliance Genome Variant Search<br/>ontology: alleleAccessionId<br/>uri: https://identifiers.org/ensembl:"):::apiField
         f_genes_allele_identifier_free("allele_identifier_free<br/>type: text<br/>ontology: alleleAccessionId"):::plainField
-        f_genes_genetic_background("genetic_background<br/>type: api_search<br/>api: Xenbase Mutant Lines<br/>ontology: xenopusStrainLine<br/>uri: https://www.xenbase.org/xenbase/stockCenter/showLine.do?method=displayLine&amp;lineId="):::apiField
+        f_genes_genetic_background("genetic_background<br/>type: text<br/>ontology: xenopusStrainLine"):::plainField
         f_genes_xenopus_line_type("xenopus_line_type<br/>type: preset_or_search<br/>ontology: lineType<br/>vocab: xenbase_line_types"):::plainField
         f_genes_mutationType_display("mutationType_display<br/>type: text<br/>ontology: geneMutationType"):::plainField
         style sec_genes fill:#7c3aed1a,stroke:#7c3aed,stroke-width:2px
@@ -147,7 +147,6 @@ flowchart TB
     f_disease_phenotype_search ~~~ f_anatomy_anat_search
     f_genes_gene_search -.->|enables| f_genes_allele_search
     f_genes_allele_search -.->|pushes to| f_genes_mutationType_display
-    f_genes_gene_search -.->|enables| f_genes_genetic_background
     f_genes_genetic_background -.->|triggers| f_genes_xenopus_line_type
     f_genes_allele_search -.->|triggers| f_genes_mutationType_display
 ```
