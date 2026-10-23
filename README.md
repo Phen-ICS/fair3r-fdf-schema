@@ -547,22 +547,6 @@ Key fields at the API level (sibling of `mapper`, not inside it):
 
 The API automatically switches based on the selected organism's taxon ID.
 
-### Server-side lookups
-
-For APIs that must run on the backend (security/compatibility):
-
-```json
-{
-  "xenbase_mutant_lines": {
-    "label": "Xenbase Mutant Lines",
-    "query_mode": "server_side_lookup",
-    "provider": "xenbase",
-    "resource": "gene_lines",
-    "depends_on": "gene_search"
-  }
-}
-```
-
 ---
 
 ## Vocabularies
@@ -740,7 +724,6 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `depends_on` | Parent field required before API query |
 | `api` | Default API for `api_search` fields |
 | `api_by_taxon` | Dynamic API selection by organism |
-| `query_mode` | Special query mode (`server_side_lookup`, etc.) |
 | `on_change` | Actions triggered on field change |
 | `bind_to` | Reads a key (or `"a || b"` fallback chain) from a related result's `mapper.extra` into this field's value, editable unless `readonly` |
 | `update_display_field` | On an `api_search` field: which field to push the selected result's `extra` data into |
@@ -934,6 +917,10 @@ Add an entry here for each significant schema change:
 - Added a `sex` field to the `organism` section, backed by the new `ols_pato` API and a `sex_presets` vocabulary: Female (PATO:0000383) and Male (PATO:0000384) are PATO's biological sex qualities, Both maps to hermaphroditic (PATO:0001340). No "Undetermined" preset — the field is optional, so clearing it already covers that, and PATO obsoleted "unknown sex" (PATO:0001336) with the note "Unknown is not a type of sex" anyway, so there'd be no ontology term to back it
 - Extended the `organism` section's `display_mapping` to a `composite` of both `NCBITaxon` and `PATO` subjects, labeled "Species" / "Sex"
 - Bumped schema version to 3.0.6
+
+## [2026-10-23]
+- Removed the `xenbase_mutant_lines` API and turned `sections.genes.genetic_background` (Xenopus "Strain / Line (Mutant)") into a free-text field: Xenbase now puts a reCAPTCHA in front of the pages the server-side lookup read (`geneAjax.do`, `searchLines.do`), so it always came back empty, and Xenbase publishes no API or download file for its lines. The value is still stored as a `xenopusStrainLine` subject (without a `valueURI`); `xenopus_line_type` is unchanged
+- Bumped schema version to 3.0.7
 
 ---
 

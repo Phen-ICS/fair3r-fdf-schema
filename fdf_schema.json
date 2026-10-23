@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.6 - No-code backend: all mappers are declarative in JSON.",
+    "changelog": "3.0.7 - No-code backend: all mappers are declarative in JSON.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -532,39 +532,6 @@
           "alleleSymbol": "{{name_key || symbolText || symbol || id}}",
           "alleleAccessionId": "{{id}}",
           "mutation_type": "{{category || alterationType}}"
-        }
-      }
-    },
-    "xenbase_mutant_lines": {
-      "label": "Xenbase Mutant Lines",
-      "url": "/api/3/action/external_lookup",
-      "method": "GET",
-      "query_mode": "server_side_lookup",
-      "headers": {
-        "Accept": "application/json"
-      },
-      "depends_on": "gene_search",
-      "extra_params": {
-        "provider": "xenbase",
-        "resource": "gene_lines",
-        "orgId": "trop",
-        "searchSpecies": "11"
-      },
-      "extra_params_from_context": {
-        "geneId": "gene_search.xref:xenbase"
-      },
-      "result_path": "result.items",
-      "result_limit": 10,
-      "mapper": {
-        "strategy": "array",
-        "label": "{{display_clean || name_clean || display || name}}",
-        "sublabel": "{{line_type}}",
-        "id": "{{lineId}}",
-        "scheme": "Strain",
-        "uri": "https://www.xenbase.org/xenbase/stockCenter/showLine.do?method=displayLine&lineId={{lineId}}",
-        "extra": {
-          "lineType": "{{line_type}}",
-          "lineId": "{{lineId}}"
         }
       }
     }
@@ -2037,15 +2004,12 @@
         {
           "id": "genetic_background",
           "label": "Strain / Line (Mutant)",
-          "type": "api_search",
-          "api": "xenbase_mutant_lines",
-          "depends_on": "gene_search",
+          "type": "text",
+          "required": false,
           "organism_dependent": true,
           "clear_dependent_fields": [
             "xenopus_line_type"
           ],
-          "required": false,
-          "allow_manual": true,
           "visible_if": {
             "field": "gene_search",
             "not_empty": true,
@@ -2053,15 +2017,14 @@
               "8364"
             ]
           },
-          "help": "For Xenopus, search the mutant/transgenic lines Xenbase has on record for this gene, or enter one manually (e.g. Xtr.pax6 emOgino).",
+          "help": "For Xenopus, enter the mutant or transgenic line as named by Xenbase (e.g. Xtr.pax6 emOgino).",
           "placeholder": "E.g. Xtr.pax6 emOgino, Xtr.pax6 tmNXR",
           "output": {
             "path": "subjects",
-            "mode": "append",
+            "mode": "append_if",
             "tpl": {
-              "subject": "$label",
-              "subjectScheme": "xenopusStrainLine",
-              "valueURI": "$id"
+              "subject": "$value",
+              "subjectScheme": "xenopusStrainLine"
             }
           }
         },
