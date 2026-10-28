@@ -1,5 +1,5 @@
 {
-  "version": "3.0.8",
+  "version": "3.0.9",
   "locale": "fr",
   "strings": {
     "apis.alliance_allele_search_cel.label": "Recherche d'allèles Alliance Genome (Caenorhabditis elegans)",
@@ -160,7 +160,7 @@
     "sections.organism.display_mapping.labels.PATO": "Sexe",
     "sections.organism.fields.organism_choice.label": "Organisme modèle",
     "sections.organism.fields.organism_choice.placeholder": "Nom scientifique dans la taxonomie NCBI, ex. : Homo sapiens, Ovis aries…",
-    "sections.organism.fields.sex.help": "Femelle et Mâle correspondent aux qualités biologiques de sexe de PATO (PATO:0000383 / PATO:0000384) ; Les deux correspond à hermaphrodite (PATO:0001340). Indéterminé n'a volontairement aucun terme d'ontologie — PATO a rendu obsolète « unknown sex » (PATO:0001336) avec la note « Unknown is not a type of sex ».",
+    "sections.organism.fields.sex.help": "Femelle, Mâle et Hermaphrodite décrivent le sexe biologique. Hermaphrodite ne désigne pas une cohorte comprenant des femelles et des mâles. La composition d’une cohorte mixte nécessite des métadonnées distinctes. Laisser vide si le sexe est indéterminé ou non pertinent.",
     "sections.organism.fields.sex.label": "Sexe",
     "sections.organism.fields.sex.placeholder": "Sélectionner ou rechercher dans PATO…",
     "sections.organism.title": "Modèle biologique",
@@ -263,7 +263,7 @@
     "vocabularies.organism_presets.label": "Modèles organismes",
     "vocabularies.sex_presets.items.PATO_0000383.label": "Femelle",
     "vocabularies.sex_presets.items.PATO_0000384.label": "Mâle",
-    "vocabularies.sex_presets.items.PATO_0001340.label": "Les deux (hermaphrodite)",
+    "vocabularies.sex_presets.items.PATO_0001340.label": "Hermaphrodite",
     "vocabularies.sex_presets.label": "Sexe",
     "vocabularies.xenbase_line_types.items.Mutant.label": "Mutant",
     "vocabularies.xenbase_line_types.items.Transgenic.label": "Transgénique",

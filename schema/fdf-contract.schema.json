@@ -1,0 +1,1108 @@
+{
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "./schema/fdf-contract.schema.json"
+    },
+    "$id": {
+      "const": "https://raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema/main/fdf_schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "changelog": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publisher_default": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "changelog"
+      ],
+      "additionalProperties": false
+    },
+    "apis": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/api"
+      }
+    },
+    "vocabularies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/vocabulary"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "xref_catalog": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "db",
+          "label",
+          "uri"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "db": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "provider_aliases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "$id",
+    "version",
+    "meta",
+    "apis",
+    "vocabularies",
+    "sections"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema/main/schema/fdf-contract.schema.json",
+  "title": "FAIR3R FDF configuration contract, revision 1",
+  "$defs": {
+    "option": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emoji": {
+          "type": "string",
+          "minLength": 1
+        },
+        "opens_section": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emoji": {
+          "type": "string",
+          "minLength": 1
+        },
+        "taxon_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ensembl_species": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allele_source_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "vocabulary": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      },
+      "required": [
+        "label",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "visibility": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {},
+        "not_empty": {
+          "type": "boolean"
+        },
+        "checked": {
+          "type": "boolean"
+        },
+        "taxon_in": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "taxon_not_in": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "not_empty"
+          ]
+        },
+        {
+          "required": [
+            "checked"
+          ]
+        },
+        {
+          "required": [
+            "taxon_in"
+          ]
+        },
+        {
+          "required": [
+            "taxon_not_in"
+          ]
+        }
+      ]
+    },
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "organism_trigger"
+            },
+            "trigger": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "trigger"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "checkbox_includes"
+            },
+            "field_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "field_id",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "obj_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "enum": [
+            "set",
+            "set_int",
+            "append",
+            "append_if",
+            "append_from_array",
+            "collect_object",
+            "wrap_array",
+            "wrap_array_from_array"
+          ]
+        },
+        "tpl": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "map": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "obj": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "also_description": {
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "path",
+            "mode"
+          ],
+          "not": {
+            "required": [
+              "obj_key"
+            ]
+          }
+        },
+        {
+          "required": [
+            "obj_key"
+          ],
+          "not": {
+            "required": [
+              "path"
+            ]
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "wrap_array",
+                  "wrap_array_from_array"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "obj_key",
+              "map"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "collect_object"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "path"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "obj_key",
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "wrap_array",
+                  "wrap_array_from_array"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "path"
+            ]
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "set",
+                  "set_int",
+                  "append",
+                  "append_if",
+                  "append_from_array",
+                  "collect_object"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "xref": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "uri"
+      ],
+      "additionalProperties": false
+    },
+    "mapper": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "enum": [
+            "flat_object",
+            "nested_object",
+            "array",
+            "array_find",
+            "obo_ontology"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sublabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "extra": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "xrefs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/xref"
+          }
+        },
+        "xref_from_extra": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id_candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tpl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "numeric": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "tpl"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "array_dedupe_by_taxid": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "field": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taxid_field": {
+              "type": "string",
+              "minLength": 1
+            },
+            "prefix_by_taxid": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "path",
+            "field",
+            "taxid_field",
+            "prefix_by_taxid"
+          ],
+          "additionalProperties": false
+        },
+        "detail_fetch": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "minLength": 1
+            },
+            "extra": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "url",
+            "extra"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "strategy",
+        "scheme"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "strategy": {
+                "not": {
+                  "const": "obo_ontology"
+                }
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "label",
+              "id"
+            ]
+          }
+        }
+      ]
+    },
+    "api": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "query_param": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result_path": {
+          "type": "string"
+        },
+        "result_limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mapper": {
+          "$ref": "#/$defs/mapper"
+        },
+        "extra_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "result_label_keywords": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "provides_chromosome_location": {
+          "type": "boolean"
+        },
+        "extra_params_from_context": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "source_tag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "method": {
+          "enum": [
+            "GET",
+            "POST"
+          ]
+        },
+        "depends_on": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path_params_from_context": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "filter_by_query": {
+          "type": "boolean"
+        },
+        "dynamic_source_tag": {
+          "type": "boolean"
+        },
+        "exclude_categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "query_prefix_with_gene": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "url",
+        "result_path",
+        "mapper"
+      ],
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "text",
+            "textarea",
+            "number",
+            "select",
+            "multi_select",
+            "checkbox_group",
+            "api_search",
+            "preset_or_search"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "row": {
+          "enum": [
+            "half",
+            "full"
+          ]
+        },
+        "default": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "help": {
+          "type": "string",
+          "minLength": 1
+        },
+        "help_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "placeholder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "visible_if": {
+          "$ref": "#/$defs/visibility"
+        },
+        "api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "search_api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vocabulary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allow_manual": {
+          "type": "boolean"
+        },
+        "autofill_from": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "autofill_label_to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "default_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "orcid_autofill_from": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "on_change": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "const": "reset_fields"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "action",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "xref_concept": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_by_taxon": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "use_organism_taxon": {
+          "type": "boolean"
+        },
+        "show_xrefs": {
+          "type": "boolean"
+        },
+        "organism_dependent": {
+          "type": "boolean"
+        },
+        "depends_on": {
+          "type": "string",
+          "minLength": 1
+        },
+        "update_display_field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_fallback": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "clear_dependent_fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "dependent_on_field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bind_to": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "api_search"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "api"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "preset_or_search"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "vocabulary"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "select",
+                  "multi_select",
+                  "checkbox_group"
+                ]
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "options"
+                ]
+              },
+              {
+                "required": [
+                  "vocabulary"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "display": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "accent_color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "display_type": {
+          "enum": [
+            "composite",
+            "related_identifiers",
+            "authors_merged",
+            "list_links"
+          ]
+        },
+        "filter": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "source",
+        "display_type"
+      ],
+      "additionalProperties": false
+    },
+    "section": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 1
+        },
+        "open_default": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          }
+        },
+        "display_mapping": {
+          "$ref": "#/$defs/display"
+        },
+        "repeatable": {
+          "type": "boolean"
+        },
+        "initial_instances": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "repeat_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "add_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "condition": {
+          "$ref": "#/$defs/condition"
+        },
+        "subject_scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "show_in_dataset": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

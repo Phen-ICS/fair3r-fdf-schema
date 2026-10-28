@@ -1,11 +1,11 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.8",
+  "$schema": "./schema/fdf-contract.schema.json",
+  "$id": "https://raw.githubusercontent.com/Phen-ICS/fair3r-fdf-schema/main/fdf_schema.json",
+  "version": "3.0.9",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
-    "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
-    "changelog": "3.0.8 - No-code backend: all mappers are declarative in JSON.",
+    "description": "Declarative form configuration. The CKAN runtime implements rendering, validation, API resolution and export behavior.",
+    "changelog": "3.0.9 - Validate the FDF contract; clarify sex semantics; preserve free-text subjects without fabricated URIs.",
     "publisher_default": "FAIR3R"
   },
   "apis": {
@@ -627,7 +627,7 @@
         },
         {
           "id": "http://purl.obolibrary.org/obo/PATO_0001340",
-          "label": "Both (hermaphrodite)"
+          "label": "Hermaphrodite"
         }
       ]
     },
@@ -1650,7 +1650,7 @@
           "search_api": "ols_pato",
           "allow_manual": false,
           "placeholder": "Select or search PATO…",
-          "help": "Female and Male map to PATO's biological sex qualities (PATO:0000383 / PATO:0000384); Both maps to hermaphroditic (PATO:0001340). Leave empty if the sex isn't determined or isn't relevant — PATO obsoleted \"unknown sex\" (PATO:0001336) with the note \"Unknown is not a type of sex\", so there's no ontology term to select for it.",
+          "help": "Female, Male and Hermaphrodite describe biological sex. Hermaphrodite does not mean a cohort containing both female and male animals. Mixed-sex cohort composition requires separate metadata. Leave empty if sex is undetermined or not relevant.",
           "output": {
             "path": "subjects",
             "mode": "append",
@@ -1901,8 +1901,7 @@
             "mode": "append_if",
             "tpl": {
               "subject": "$value",
-              "subjectScheme": "geneChromosomeLocation",
-              "valueURI": "$value"
+              "subjectScheme": "geneChromosomeLocation"
             }
           }
         },
@@ -1993,8 +1992,7 @@
             "mode": "append_if",
             "tpl": {
               "subject": "$value",
-              "subjectScheme": "alleleAccessionId",
-              "valueURI": "$value"
+              "subjectScheme": "alleleAccessionId"
             },
             "obj": {
               "alleleSymbol": "$value",
@@ -2077,8 +2075,7 @@
             "mode": "append_if",
             "tpl": {
               "subject": "$value",
-              "subjectScheme": "geneMutationType",
-              "valueURI": "$value"
+              "subjectScheme": "geneMutationType"
             },
             "obj": {
               "geneMutationType": "$value",

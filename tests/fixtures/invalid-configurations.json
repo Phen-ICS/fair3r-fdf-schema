@@ -1,0 +1,210 @@
+{
+  "unknown_api": {
+    "path": [
+      "sections",
+      2,
+      "fields",
+      1,
+      "api"
+    ],
+    "value": "missing_api",
+    "error": "unknown API"
+  },
+  "unknown_dependency": {
+    "path": [
+      "sections",
+      8,
+      "fields",
+      4,
+      "depends_on"
+    ],
+    "value": "missing_field",
+    "error": "field reference"
+  },
+  "unknown_output_mode": {
+    "path": [
+      "sections",
+      0,
+      "fields",
+      0,
+      "output",
+      "mode"
+    ],
+    "value": "silently_discard",
+    "error": "not one of"
+  },
+  "unknown_field_type": {
+    "path": [
+      "sections",
+      0,
+      "fields",
+      0,
+      "type"
+    ],
+    "value": "magic_widget",
+    "error": "not one of"
+  },
+  "unknown_vocabulary": {
+    "path": [
+      "sections",
+      5,
+      "fields",
+      0,
+      "vocabulary"
+    ],
+    "value": "missing_vocabulary",
+    "error": "unknown vocabulary"
+  },
+  "unknown_visibility_field": {
+    "path": [
+      "sections",
+      1,
+      "fields",
+      1,
+      "visible_if",
+      "field"
+    ],
+    "value": "missing_field",
+    "error": "field reference"
+  },
+  "unknown_condition_field": {
+    "path": [
+      "sections",
+      8,
+      "condition",
+      "field_id"
+    ],
+    "value": "missing_field",
+    "error": "field reference"
+  },
+  "unknown_condition_value": {
+    "path": [
+      "sections",
+      8,
+      "condition",
+      "value"
+    ],
+    "value": "INVALID",
+    "error": "checkbox value"
+  },
+  "unknown_section": {
+    "path": [
+      "sections",
+      7,
+      "fields",
+      0,
+      "options",
+      0,
+      "opens_section"
+    ],
+    "value": "missing_section",
+    "error": "unknown section"
+  },
+  "unknown_mapper": {
+    "path": [
+      "apis",
+      "orcid",
+      "mapper",
+      "strategy"
+    ],
+    "value": "guess",
+    "error": "not one of"
+  },
+  "invalid_mapping_shape": {
+    "path": [
+      "apis",
+      "orcid",
+      "mapper",
+      "id"
+    ],
+    "value": [],
+    "error": "not of type"
+  },
+  "duplicate_section": {
+    "path": [
+      "sections",
+      1,
+      "id"
+    ],
+    "value": "title",
+    "error": "duplicate id"
+  },
+  "duplicate_field": {
+    "path": [
+      "sections",
+      0,
+      "fields",
+      1,
+      "id"
+    ],
+    "value": "publication_year",
+    "error": "duplicate id"
+  },
+  "raw_text_uri": {
+    "path": [
+      "sections",
+      8,
+      "fields",
+      3,
+      "output",
+      "tpl",
+      "valueURI"
+    ],
+    "value": "$value",
+    "error": "free text"
+  },
+  "version_mismatch": {
+    "path": [
+      "version"
+    ],
+    "value": "3.0.10",
+    "error": "version"
+  },
+  "dependency_cycle": {
+    "path": [
+      "sections",
+      8,
+      "fields",
+      1,
+      "depends_on"
+    ],
+    "value": "allele_search",
+    "error": "cyclic"
+  },
+  "unknown_api_route": {
+    "path": [
+      "sections",
+      8,
+      "fields",
+      1,
+      "api_by_taxon",
+      "10090"
+    ],
+    "value": "missing_api",
+    "error": "unknown API"
+  },
+  "unknown_context": {
+    "path": [
+      "apis",
+      "ensembl_allele",
+      "path_params_from_context",
+      "region"
+    ],
+    "value": "missing_field",
+    "error": "field reference"
+  },
+  "missing_wrap_map": {
+    "path": [
+      "sections",
+      3,
+      "fields",
+      5,
+      "output"
+    ],
+    "value": {
+      "obj_key": "nameIdentifiers",
+      "mode": "wrap_array"
+    },
+    "error": "required property"
+  }
+}
