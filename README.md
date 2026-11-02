@@ -991,6 +991,8 @@ Add an entry here for each significant schema change:
 - Bumped schema version to 3.0.12
 - Switched `sections.anatomy` and `sections.diet`'s `display_mapping` from `list_links` to `composite` too (`source: ["subjects"]`, `accent_color`), for the same reason as Disease Model: `list_links` has no card, no "label: value" row, and no cross-reference grouping, just a plain bullet list. Neither section needed a field reorder — their primary field (`anat_search`, `diet_search`) was already first
 - Bumped schema version to 3.0.13
+- Shortened `mutationType_so`'s label from "Mutation Type (Sequence Ontology / NCIT)" to "Mutation Type (SO)", matching how every other ontology-backed field names its ontology (a single acronym in parentheses, e.g. "Tissue or Organ (UBERON)", "Modeled Disease (MONDO)") instead of spelling it out and listing both. The help text still explains NCIT covers what SO doesn't (knockout/knock-in)
+- Bumped schema version to 3.0.14
 
 ---
 

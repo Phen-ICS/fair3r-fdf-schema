@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.13",
+  "version": "3.0.14",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -2147,7 +2147,7 @@
         },
         {
           "id": "mutationType_so",
-          "label": "Mutation Type (Sequence Ontology / NCIT)",
+          "label": "Mutation Type (SO)",
           "type": "api_search",
           "api": "ols_so",
           "allow_manual": true,
@@ -2224,8 +2224,8 @@
           "alleleAccessionId": "Allele",
           "xenopusStrainLine": "Strain / Line",
           "lineType": "Line Type",
-          "SO": "Mutation Type (Sequence Ontology / NCIT)",
-          "NCIT": "Mutation Type (Sequence Ontology / NCIT)",
+          "SO": "Mutation Type (SO)",
+          "NCIT": "Mutation Type (SO)",
           "geneMutationType": "Mutation Description"
         },
         "accent_color": "#7c3aed",
