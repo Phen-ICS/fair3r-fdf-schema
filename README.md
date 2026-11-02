@@ -993,6 +993,8 @@ Add an entry here for each significant schema change:
 - Bumped schema version to 3.0.13
 - Shortened `mutationType_so`'s label from "Mutation Type (Sequence Ontology / NCIT)" to "Mutation Type (SO)", matching how every other ontology-backed field names its ontology (a single acronym in parentheses, e.g. "Tissue or Organ (UBERON)", "Modeled Disease (MONDO)") instead of spelling it out and listing both. The help text still explains NCIT covers what SO doesn't (knockout/knock-in)
 - Bumped schema version to 3.0.14
+- Dropped the "(SO)" from `mutationType_so`'s label too — it already sat right next to "Mutation Description", so "Type" vs "Description" alone already distinguishes them; the ontology detail stays in the help text
+- Bumped schema version to 3.0.15
 
 ---
 

@@ -131,7 +131,7 @@
     "sections.disease.fields.phenotype_search.label": "Phénotype observé (UPhenO)",
     "sections.disease.fields.phenotype_search.placeholder": "Ex. : perte de poids, hypertrophie splénique, déficit moteur…",
     "sections.disease.title": "Modèle de maladie",
-    "sections.genes.display_mapping.labels.SO": "Type de mutation (SO)",
+    "sections.genes.display_mapping.labels.SO": "Type de mutation",
     "sections.genes.display_mapping.labels.TransgeneOrigin": "Origine du transgène",
     "sections.genes.display_mapping.labels.alleleAccessionId": "Allèle",
     "sections.genes.display_mapping.labels.geneAccessionId": "Gène",
@@ -161,7 +161,7 @@
     "sections.genes.fields.mutationType_display.label": "Description de la mutation",
     "sections.genes.fields.mutationType_display.placeholder": "Ex. : missense_variant",
     "sections.genes.fields.mutationType_so.help": "Recherchez dans la Sequence Ontology / NCIT le terme précis (pas de remplissage automatique). Essayez le texte de Description de la mutation ci-dessous comme point de départ.",
-    "sections.genes.fields.mutationType_so.label": "Type de mutation (SO)",
+    "sections.genes.fields.mutationType_so.label": "Type de mutation",
     "sections.genes.fields.mutationType_so.placeholder": "Ex. missense_variant, frameshift_variant, stop_gained, Knock-out…",
     "sections.genes.fields.transgene_origin_species.help": "Espèce d'origine du gène ou de la mutation. Enregistrée comme sujet DataCite pour la traçabilité inter-espèces.",
     "sections.genes.fields.transgene_origin_species.label": "Transgène / espèce d'origine du gène",
@@ -293,7 +293,7 @@
     "vocabularies.xenbase_line_types.items.__OTHER__.label": "Autre / texte libre",
     "vocabularies.xenbase_line_types.label": "Types de lignées Xenbase",
     "sections.disease.fields.disease_source.options.0.label": "— Non précisé —",
-    "sections.genes.display_mapping.labels.NCIT": "Type de mutation (SO)",
+    "sections.genes.display_mapping.labels.NCIT": "Type de mutation",
     "sections.diet.display_mapping.labels.EFO": "Régime alimentaire"
   }
 }
