@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.11",
+  "version": "3.0.12",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -646,7 +646,7 @@
     },
     "DOID": {
       "db": "doid",
-      "label": "Disease Ontology",
+      "label": "DOID",
       "uri": "https://identifiers.org/{{id}}"
     },
     "OMIM": {
@@ -2382,6 +2382,27 @@
       "subject_scheme": "MONDO",
       "fields": [
         {
+          "id": "disease_search",
+          "label": "Modeled Disease (MONDO)",
+          "type": "api_search",
+          "api": "ols_mondo",
+          "xref_concept": "Disease",
+          "allow_manual": true,
+          "required": false,
+          "help": "Search for diseases in the Mondo Disease Ontology, which unifies the Disease Ontology, OMIM, Orphanet and NCIt. Describe the disease model used in your study.",
+          "placeholder": "E.g. Alzheimer disease, Type 2 diabetes mellitus…",
+          "output": {
+            "path": "subjects",
+            "mode": "append",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "MONDO",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
+        },
+        {
           "id": "disease_source",
           "label": "Disease Source",
           "type": "select",
@@ -2415,27 +2436,6 @@
           }
         },
         {
-          "id": "disease_search",
-          "label": "Modeled Disease (MONDO)",
-          "type": "api_search",
-          "api": "ols_mondo",
-          "xref_concept": "Disease",
-          "allow_manual": true,
-          "required": false,
-          "help": "Search for diseases in the Mondo Disease Ontology, which unifies the Disease Ontology, OMIM, Orphanet and NCIt. Describe the disease model used in your study.",
-          "placeholder": "E.g. Alzheimer disease, Type 2 diabetes mellitus…",
-          "output": {
-            "path": "subjects",
-            "mode": "append",
-            "tpl": {
-              "subject": "$label",
-              "subjectScheme": "MONDO",
-              "valueURI": "$id"
-            },
-            "also_description": true
-          }
-        },
-        {
           "id": "phenotype_search",
           "label": "Observed Phenotypes in Model Organism (uPheno)",
           "type": "api_search",
@@ -2457,20 +2457,23 @@
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
           "subjectScheme": [
-            "diseaseSource",
             "MONDO",
+            "diseaseSource",
             "UPHENO"
           ]
         },
         "labels": {
-          "diseaseSource": "Disease Source",
           "MONDO": "Disease Model",
+          "diseaseSource": "Disease Source",
           "UPHENO": "Phenotype"
         },
-        "display_type": "list_links"
+        "accent_color": "#be123c",
+        "display_type": "composite"
       }
     },
     {

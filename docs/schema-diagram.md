@@ -94,10 +94,10 @@ flowchart TB
     end
     subgraph sec_disease["Disease Model"]
         direction TB
-        f_disease_disease_source("disease_source<br/>type: select<br/>ontology: diseaseSource"):::plainField
         f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Mondo Disease Ontology (OLS4)<br/>ontology: MONDO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
+        f_disease_disease_source("disease_source<br/>type: select<br/>ontology: diseaseSource"):::plainField
         f_disease_phenotype_search("phenotype_search<br/>type: api_search<br/>api: uPheno (OLS4)<br/>ontology: UPHENO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
-        style sec_disease fill:#64748b1a,stroke:#64748b,stroke-width:2px
+        style sec_disease fill:#be123c1a,stroke:#be123c,stroke-width:2px
     end
     subgraph sec_anatomy["Tissue / Organ of Interest"]
         direction TB
@@ -147,9 +147,9 @@ flowchart TB
     f_chemicals_chem_search ~~~ f_chemicals_treatmentprotocol
     f_chemicals_treatmentprotocol ~~~ f_chemicals_treatmentdesign
     f_chemicals_treatmentdesign ~~~ f_diet_diet_search
-    f_diet_diet_search ~~~ f_disease_disease_source
-    f_disease_disease_source ~~~ f_disease_disease_search
-    f_disease_disease_search ~~~ f_disease_phenotype_search
+    f_diet_diet_search ~~~ f_disease_disease_search
+    f_disease_disease_search ~~~ f_disease_disease_source
+    f_disease_disease_source ~~~ f_disease_phenotype_search
     f_disease_phenotype_search ~~~ f_anatomy_anat_search
     f_anatomy_anat_search ~~~ f_anatomy_source_tissue_search
     f_anatomy_source_tissue_search ~~~ f_anatomy_source_cell_type_search
