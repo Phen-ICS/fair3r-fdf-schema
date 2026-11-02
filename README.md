@@ -978,7 +978,7 @@ Add an entry here for each significant schema change:
 - Switched `sections.disease`, `sections.anatomy` and `sections.diet`'s `display_mapping` from `list_links` to `composite` (`source: ["subjects"]`, each its own `accent_color`), the same display type `genes`/`organism`/`strain` already use: `list_links` has no notion of `crossRefOf` and no card/"label: value" row, so disease's cross-references each rendered as their own bullet repeating the disease's name, instead of one row with inline badges like gene/allele xrefs. Reordered `sections.disease.fields` (`disease_search` first, before `disease_source`): the repeatable composite display starts a new group each time it sees the section's `subject_scheme` ("MONDO"), so anything meant to land in the same disease's group has to come after it, same ordering `genes` already relies on (`gene_search` first)
 - Added `source_tag: "MyGene.info"` to the `mygene` API, so gene search results show a source badge like allele/ontology results already do
 - Shortened `mutationType_display`/`mutationType_so`'s `help` text (both were too verbose)
-- Bumped schema version to 3.0.15
+- Bumped schema version to 3.0.9
 
 ---
 
