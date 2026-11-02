@@ -76,6 +76,7 @@ flowchart TB
         f_genes_allele_identifier_free("allele_identifier_free<br/>type: text<br/>ontology: alleleAccessionId"):::plainField
         f_genes_genetic_background("genetic_background<br/>type: text<br/>ontology: xenopusStrainLine"):::plainField
         f_genes_xenopus_line_type("xenopus_line_type<br/>type: preset_or_search<br/>ontology: lineType<br/>vocab: xenbase_line_types"):::plainField
+        f_genes_mutationType_so("mutationType_so<br/>type: api_search<br/>api: Sequence Ontology + NCIT (OLS4)<br/>ontology: SO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_genes_mutationType_display("mutationType_display<br/>type: text<br/>ontology: geneMutationType"):::plainField
         style sec_genes fill:#7c3aed1a,stroke:#7c3aed,stroke-width:2px
     end
@@ -93,6 +94,7 @@ flowchart TB
     end
     subgraph sec_disease["Disease Model"]
         direction TB
+        f_disease_disease_source("disease_source<br/>type: select<br/>ontology: diseaseSource"):::plainField
         f_disease_disease_search("disease_search<br/>type: api_search<br/>api: Mondo Disease Ontology (OLS4)<br/>ontology: MONDO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_disease_phenotype_search("phenotype_search<br/>type: api_search<br/>api: uPheno (OLS4)<br/>ontology: UPHENO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_disease fill:#64748b1a,stroke:#64748b,stroke-width:2px
@@ -100,6 +102,8 @@ flowchart TB
     subgraph sec_anatomy["Tissue / Organ of Interest"]
         direction TB
         f_anatomy_anat_search("anat_search<br/>type: api_search<br/>api: UBERON (OLS4)<br/>ontology: UBERON<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
+        f_anatomy_source_tissue_search("source_tissue_search<br/>type: api_search<br/>api: FMA (OLS4)<br/>ontology: FMA<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
+        f_anatomy_source_cell_type_search("source_cell_type_search<br/>type: api_search<br/>api: Cell Ontology (OLS4)<br/>ontology: CL<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         style sec_anatomy fill:#64748b1a,stroke:#64748b,stroke-width:2px
     end
     f_title_publication_year ~~~ f_title_resource_type
@@ -137,14 +141,18 @@ flowchart TB
     f_genes_allele_search ~~~ f_genes_allele_identifier_free
     f_genes_allele_identifier_free ~~~ f_genes_genetic_background
     f_genes_genetic_background ~~~ f_genes_xenopus_line_type
-    f_genes_xenopus_line_type ~~~ f_genes_mutationType_display
+    f_genes_xenopus_line_type ~~~ f_genes_mutationType_so
+    f_genes_mutationType_so ~~~ f_genes_mutationType_display
     f_genes_mutationType_display ~~~ f_chemicals_chem_search
     f_chemicals_chem_search ~~~ f_chemicals_treatmentprotocol
     f_chemicals_treatmentprotocol ~~~ f_chemicals_treatmentdesign
     f_chemicals_treatmentdesign ~~~ f_diet_diet_search
-    f_diet_diet_search ~~~ f_disease_disease_search
+    f_diet_diet_search ~~~ f_disease_disease_source
+    f_disease_disease_source ~~~ f_disease_disease_search
     f_disease_disease_search ~~~ f_disease_phenotype_search
     f_disease_phenotype_search ~~~ f_anatomy_anat_search
+    f_anatomy_anat_search ~~~ f_anatomy_source_tissue_search
+    f_anatomy_source_tissue_search ~~~ f_anatomy_source_cell_type_search
     f_genes_gene_search -.->|enables| f_genes_allele_search
     f_genes_allele_search -.->|pushes to| f_genes_mutationType_display
     f_genes_genetic_background -.->|triggers| f_genes_xenopus_line_type
