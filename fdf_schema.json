@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -135,7 +135,17 @@
       "result_path": "response.docs",
       "mapper": {
         "strategy": "obo_ontology",
-        "scheme": "MONDO"
+        "scheme": "MONDO",
+        "xref_from_extra_array": "disease_xrefs_raw",
+        "extra": {
+          "disease_xrefs_raw": "{{annotation.database_cross_reference}}"
+        },
+        "detail_fetch": {
+          "url": "https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?short_form={{short_form}}",
+          "extra": {
+            "disease_xrefs_raw": "{{_embedded.terms[0].annotation.database_cross_reference}}"
+          }
+        }
       }
     },
     "ols_uberon": {
@@ -210,6 +220,7 @@
     },
     "mygene": {
       "label": "MyGene.info",
+      "source_tag": "MyGene.info",
       "provides_chromosome_location": true,
       "url": "https://mygene.info/v3/query",
       "query_param": "q",
@@ -632,6 +643,41 @@
       "db": "ensembl",
       "label": "Ensembl",
       "uri": "https://www.ensembl.org/id/{{id_suffix}}"
+    },
+    "DOID": {
+      "db": "doid",
+      "label": "Disease Ontology",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "OMIM": {
+      "db": "omim",
+      "label": "OMIM",
+      "uri": "https://omim.org/entry/{{id_suffix}}"
+    },
+    "ORPHANET": {
+      "db": "orphanet",
+      "label": "Orphanet",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "MESH": {
+      "db": "mesh",
+      "label": "MeSH",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "NCIT": {
+      "db": "ncit",
+      "label": "NCIT",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "UMLS": {
+      "db": "umls",
+      "label": "UMLS",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "SCTID": {
+      "db": "snomedct",
+      "label": "SNOMED CT",
+      "uri": "https://identifiers.org/SNOMEDCT:{{id_suffix}}"
     }
   },
   "vocabularies": {
@@ -2111,7 +2157,7 @@
             "field": "gene_search",
             "not_empty": true
           },
-          "help": "Search for the precise term matching this mutation (not auto-filled). Searches both the Sequence Ontology and NCIT: Ensembl/Alliance consequence types shown below (missense_variant, frameshift_variant, stop_gained, synonymous_variant, transgenic...) are themselves Sequence Ontology term labels, so typing the Mutation Description below usually finds the right term; genotype-level terms the Sequence Ontology doesn't have (Knock-out, Knock-in) come from NCIT instead.",
+          "help": "Search the Sequence Ontology / NCIT for the precise term (not auto-filled). Try the text from Mutation Description below as a starting query.",
           "placeholder": "E.g. missense_variant, frameshift_variant, stop_gained, Knock-out…",
           "output": {
             "path": "subjects",
@@ -2137,7 +2183,7 @@
             "not_empty": true
           },
           "bind_to": "consequenceType || geneMutationType",
-          "help": "Auto-filled from the allele search above when the API provides it (reliable for mouse and rat; not always for other species). If it stays empty or looks wrong, enter it manually. Free-text description, e.g. missense_variant, nonsense_variant (stop_gained), frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout. See Mutation Type above for the ontology-coded equivalent.",
+          "help": "Auto-filled from the allele search when available; edit freely otherwise. See Mutation Type above for the ontology-coded version.",
           "placeholder": "E.g. missense_variant",
           "output": {
             "path": "subjects",
@@ -2373,6 +2419,7 @@
           "label": "Modeled Disease (MONDO)",
           "type": "api_search",
           "api": "ols_mondo",
+          "xref_concept": "Disease",
           "allow_manual": true,
           "required": false,
           "help": "Search for diseases in the Mondo Disease Ontology, which unifies the Disease Ontology, OMIM, Orphanet and NCIt. Describe the disease model used in your study.",
