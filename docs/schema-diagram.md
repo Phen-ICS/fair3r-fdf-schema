@@ -90,7 +90,7 @@ flowchart TB
     subgraph sec_diet["Diet / Feeding Regiment"]
         direction TB
         f_diet_diet_search("diet_search<br/>type: api_search<br/>api: EFO Diet (OLS4)<br/>ontology: EFO<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
-        style sec_diet fill:#64748b1a,stroke:#64748b,stroke-width:2px
+        style sec_diet fill:#92400e1a,stroke:#92400e,stroke-width:2px
     end
     subgraph sec_disease["Disease Model"]
         direction TB
@@ -104,7 +104,7 @@ flowchart TB
         f_anatomy_anat_search("anat_search<br/>type: api_search<br/>api: UBERON (OLS4)<br/>ontology: UBERON<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_anatomy_source_tissue_search("source_tissue_search<br/>type: api_search<br/>api: FMA (OLS4)<br/>ontology: FMA<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
         f_anatomy_source_cell_type_search("source_cell_type_search<br/>type: api_search<br/>api: Cell Ontology (OLS4)<br/>ontology: CL<br/>uri: http://purl.obolibrary.org/obo/"):::apiField
-        style sec_anatomy fill:#64748b1a,stroke:#64748b,stroke-width:2px
+        style sec_anatomy fill:#15803d1a,stroke:#15803d,stroke-width:2px
     end
     f_title_publication_year ~~~ f_title_resource_type
     f_title_resource_type ~~~ f_related_identifiers_related_identifier

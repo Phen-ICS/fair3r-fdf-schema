@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.12",
+  "version": "3.0.13",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -2359,11 +2359,17 @@
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
           "subjectScheme": "EFO"
         },
-        "display_type": "list_links"
+        "labels": {
+          "EFO": "Diet"
+        },
+        "accent_color": "#92400e",
+        "display_type": "composite"
       }
     },
     {
@@ -2553,7 +2559,9 @@
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
           "subjectScheme": ["UBERON", "FMA", "CL"]
         },
@@ -2562,7 +2570,8 @@
           "FMA": "Source Tissue",
           "CL": "Source Cell Type"
         },
-        "display_type": "list_links"
+        "accent_color": "#15803d",
+        "display_type": "composite"
       }
     }
   ]

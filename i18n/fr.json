@@ -293,6 +293,7 @@
     "vocabularies.xenbase_line_types.items.__OTHER__.label": "Autre / texte libre",
     "vocabularies.xenbase_line_types.label": "Types de lignées Xenbase",
     "sections.disease.fields.disease_source.options.0.label": "— Non précisé —",
-    "sections.genes.display_mapping.labels.NCIT": "Type de mutation (Sequence Ontology / NCIT)"
+    "sections.genes.display_mapping.labels.NCIT": "Type de mutation (Sequence Ontology / NCIT)",
+    "sections.diet.display_mapping.labels.EFO": "Régime alimentaire"
   }
 }

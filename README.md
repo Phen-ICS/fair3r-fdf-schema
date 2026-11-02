@@ -989,6 +989,8 @@ Add an entry here for each significant schema change:
 - Reordered `sections.disease.fields` (`disease_search` now first, before `disease_source`): the repeatable composite display groups each repeated instance's subjects by where `subjectScheme` next equals the section's `subject_scheme` (`"MONDO"`) — `disease_source`'s own `diseaseSource` subject has to come *after* that boundary to land in the same disease's group instead of the previous one's, same ordering `genes` already relies on (`gene_search` before any other field that writes to `subjects`)
 - Renamed `xref_catalog.DOID`'s label from "Disease Ontology" to "DOID": paired with the `xref_concept: "Disease"` suffix `_emitXrefSubjects` adds, the full name read "Disease Ontology Disease" on the badge
 - Bumped schema version to 3.0.12
+- Switched `sections.anatomy` and `sections.diet`'s `display_mapping` from `list_links` to `composite` too (`source: ["subjects"]`, `accent_color`), for the same reason as Disease Model: `list_links` has no card, no "label: value" row, and no cross-reference grouping, just a plain bullet list. Neither section needed a field reorder — their primary field (`anat_search`, `diet_search`) was already first
+- Bumped schema version to 3.0.13
 
 ---
 
