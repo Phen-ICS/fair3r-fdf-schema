@@ -159,6 +159,8 @@ Backend reads same schema → validates → maps to DataCite → publishes to CK
 }
 ```
 
+Without a `default`, the browser still shows the first `<option>` as selected — the field only has no *real* value once the user explicitly picks a different one or an empty option. For an optional field (`required: false`, no `default`) where that would be misleading, add `{ "value": "", "label": "— Not specified —" }` as the first option: `mode: "append_if"` already skips the empty string, so nothing gets submitted until the user actually chooses. See `sections.disease.disease_source`.
+
 ### `checkbox_group` — boolean toggles that open sections
 
 ```json
@@ -277,7 +279,7 @@ Every field that should persist data needs an `output` block:
 |---|---|
 | `path` | Destination key in the FDF JSON |
 | `mode` | How to write: `set`, `append`, `set_int`, `collect_object`, `append_if`, etc. |
-| `tpl` | Template for the output object (`$value`, `$label`, `$id` placeholders) |
+| `tpl` | Template for the output object (`$value`, `$label`, `$id`, `$scheme` placeholders) |
 | `obj_key` | Key inside a repeated object (for repeatable sections) |
 
 Common modes:
@@ -287,6 +289,8 @@ Common modes:
 - **`set_int`** — set as integer
 - **`collect_object`** — gather all `obj_key` values into an array of objects
 - **`append_if`** — append only if value is non-empty
+
+`subjectScheme` is usually a literal string (`"UBERON"`, `"MONDO"`...). Use `"$scheme"` instead when the field's `api` can match more than one ontology at once (`extra_params.ontology: "so,ncit"`, see [Mapper strategies](#mapper-strategies)): it resolves per selected result, from OLS4's own `ontology_prefix` for that result, instead of a single scheme fixed for the whole field. A field with a single-ontology `api` doesn't need this — keep the literal string.
 
 ---
 
@@ -459,7 +463,9 @@ Key fields:
 - **`nested_object`** — nested structure
 - **`array`** — direct array mapping
 - **`array_find`** — find-by-key strategy
-- **`obo_ontology`** — OLS ontology format
+- **`obo_ontology`** — OLS4's `/api/select` response shape. Without an explicit `label`/`id`/`sublabel` template, falls back to `item.label`, `item.iri`, `item.description || item.obo_id`. Every OLS4 ontology API in this schema (`ols_mondo`, `ols_uberon`, `ols_pato`...) uses this strategy with just `"scheme": "<ONTOLOGY>"` and no other config needed.
+
+  `extra_params.ontology` can list more than one OLS4 ontology at once (`"ontology": "so,ncit"`): OLS4 returns results from either, ranked together by relevance. Each result's real ontology (`item.ontology_prefix`, e.g. `"SO"` or `"NCIT"`) is what the per-result source badge and `output.tpl.subjectScheme: "$scheme"` resolve to — not the field's single static `mapper.scheme`, which only matters as a fallback (e.g. for a manually typed value with no selected result). See `sections.genes.mutationType_so` for a worked example.
 
 ### Mapper extras & cross-references
 
@@ -492,7 +498,8 @@ Beyond `label` / `sublabel` / `id` / `scheme`, a mapper can attach extra per-ite
 | `extra` | Per-item key/value data carried on the selected result; read later via `bind_to` on another field, or `$key` in this field's own `output.obj` |
 | `uri` | Direct link template to the source database's own page for the selected item |
 | `xrefs` | Named cross-reference links (`id`/`label`/`uri`, gated by `condition`) shown alongside the result, keyed by source (e.g. `mgi`, `alliance`) |
-| `xref_from_extra` | Builds the cross-reference display from `extra` instead of a static `xrefs` block |
+| `xref_from_extra` | Builds one cross-reference from a single `"PREFIX:ID"` string in `extra`, looked up in `xref_catalog` — instead of a static `xrefs` block |
+| `xref_from_extra_array` | Same lookup, but for an `extra` key holding several `"PREFIX:ID"` accessions at once (comma-separated), e.g. an ontology term's `database_cross_reference` list — builds one cross-reference per accession. See `ols_mondo` |
 | `id_candidates` | Ordered fallback list of id templates, tried when the primary `id` template resolves empty (e.g. a gene missing `entrezgene`) |
 | `array_dedupe_by_taxid` | For a result field that can hold several entries across species (e.g. `mygene`'s `ensembl.gene`), keeps only the one matching the result's own taxon: reads `path`/`field` to locate the array, `taxid_field` to match entries by taxon id, and falls back to `prefix_by_taxid` (an expected id-prefix per taxid, e.g. `ENSMUSG` for mouse) when the entry itself carries no usable taxid |
 | `detail_fetch` | After a result is selected, fetches a per-item detail endpoint and merges its data into `extra` (see below) |
@@ -522,11 +529,33 @@ Sometimes the search endpoint itself can't carry the data you need — Alliance 
 
 Used by `alliance_allele_search_mouse` / `alliance_allele_search_rat` to pull the free-text `mutation_description` note from Alliance Genome's per-allele API, since the search endpoint alone can't tell a knockout from a point mutation.
 
+`detail_fetch.extra` can also feed `xref_from_extra_array` (above) instead of a plain field — OLS4's lightweight `/api/select` never includes a term's cross-references, only its per-term detail endpoint does. `ols_mondo` uses this to show/store DOID, OMIM, Orphanet, MeSH, NCIT, UMLS and SNOMED CT cross-references once a disease is selected:
+
+```json
+"mapper": {
+  "strategy": "obo_ontology",
+  "scheme": "MONDO",
+  "xref_from_extra_array": "disease_xrefs_raw",
+  "extra": {
+    "disease_xrefs_raw": "{{annotation.database_cross_reference}}"
+  },
+  "detail_fetch": {
+    "url": "https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?short_form={{short_form}}",
+    "extra": {
+      "disease_xrefs_raw": "{{_embedded.terms[0].annotation.database_cross_reference}}"
+    }
+  }
+}
+```
+
+Note the `url` queries `short_form` as a plain parameter (`MONDO_0007739`, straight from the search result) rather than OLS4's "canonical" term-detail path, which takes the term's full IRI *double* URL-encoded — `detail_fetch.url` only does plain `{{...}}` substitution, no encoding, so a path segment like that would come out malformed. Querying by `short_form`/`obo_id` sidesteps the problem entirely and works on any OLS4 ontology, not just MONDO.
+
 Key fields at the API level (sibling of `mapper`, not inside it):
 
 | Key | Description |
 |---|---|
 | `source_tag` / `dynamic_source_tag` | Labels which data source produced a result, shown as a badge; `dynamic_source_tag: true` lets the badge vary per result instead of being fixed to the API's own name |
+| *(none — automatic)* | An `obo_ontology` mapper's badge needs no `source_tag` at all: it's always the result's own `ontology_prefix`. Every badge (set this way or via `source_tag`/`dynamic_source_tag`) also gets a color automatically — a fixed blue for names already in `xref_catalog`/`source_tag`/`allele_source_label`, a stable hash-picked color from a small palette for anything else, so a new ontology or source never needs its own color configured |
 | `exclude_categories` | Drops result categories the API returns but this field shouldn't show (e.g. `variant` on an allele search) |
 | `query_prefix_with_gene` | Prefixes the search query with the selected gene symbol before calling the API |
 | `provides_chromosome_location` | Marks an API (e.g. `mygene`) as a source for auto-filling `gene_chromosome_location` |
@@ -573,7 +602,7 @@ The `organism_presets` vocabulary includes 15+ model organisms with emoji icons,
 
 ## Cross-reference catalog (`xref_catalog`)
 
-A top-level dictionary that standardizes how allele/gene identifiers resolve to a source database and a clickable URI, independent of which field or API produced the id:
+A top-level dictionary that standardizes how an identifier (gene, allele, disease...) resolves to a source database and a clickable URI, independent of which field, API, or concept produced the id. Keyed by the identifier's own prefix (`"DOID"`, `"OMIM"`, `"MGI"`...), uppercased:
 
 ```json
 "xref_catalog": {
@@ -582,6 +611,11 @@ A top-level dictionary that standardizes how allele/gene identifiers resolve to 
     "label": "MGI",
     "uri": "https://www.informatics.jax.org/allele/MGI:{{id_suffix}}",
     "provider_aliases": ["MOUSE"]
+  },
+  "DOID": {
+    "db": "doid",
+    "label": "Disease Ontology",
+    "uri": "https://identifiers.org/{{id}}"
   }
 }
 ```
@@ -590,8 +624,10 @@ A top-level dictionary that standardizes how allele/gene identifiers resolve to 
 |---|---|
 | `db` | Internal source key |
 | `label` | Display label for the badge/link |
-| `uri` | Link template; `{{id_suffix}}` is the identifier with its prefix (e.g. `MGI:`) stripped |
+| `uri` | Link template. `{{id_suffix}}` is the identifier with its prefix stripped (e.g. `MGI:` → the rest); `{{id}}` is the full accession as-is (e.g. `DOID:12858`) — use whichever the target site's URL actually needs (most identifiers.org-backed entries just need `{{id}}`; a site with its own URL scheme, like OMIM's `omim.org/entry/{{id_suffix}}`, needs the bare suffix) |
 | `provider_aliases` | Alternate provider names, as returned by some APIs, that should resolve to this same entry |
+
+Looked up by `mapper.xref_from_extra` / `mapper.xref_from_extra_array` (see [Mapper extras & cross-references](#mapper-extras--cross-references)) from any `"PREFIX:ID"`-shaped accession, whatever field or concept it came from — a disease's `DOID:12858` and a gene's `MGI:12345` both resolve through this same catalog. A prefix with no entry here is simply skipped (no cross-reference shown), so adding a new one is always safe.
 
 Organism presets point into the catalog via `allele_source_label` (e.g. `"allele_source_label": "MGI"` on the mouse preset), so the UI knows which cross-reference database to prioritize for a given species.
 
@@ -731,7 +767,8 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `show_xrefs` | On an `api_search` field: display the selected result's cross-reference links under the field |
 | `xref_concept` | On an `api_search` field: labels which concept (`"Gene"`, `"Allele"`…) its cross-references belong to, so several such fields in the same row don't get their xrefs mixed up |
 | `mapper.extra` | Per-item key/value data carried on an API result, read via `bind_to` or `$key` in `output.obj` |
-| `mapper.xrefs` / `xref_from_extra` | Cross-reference links shown for a result, static or derived from `extra` |
+| `mapper.xrefs` / `xref_from_extra` / `xref_from_extra_array` | Cross-reference links shown for a result: static, derived from a single `"PREFIX:ID"` in `extra`, or from several at once (comma-separated) |
+| `output.tpl.subjectScheme: "$scheme"` | Resolves per selected result from an `obo_ontology` result's own `ontology_prefix`, instead of the field's single static `mapper.scheme` — for a field whose `api` searches more than one OLS4 ontology at once |
 | `mapper.id_candidates` | Fallback `id` templates tried in order when the primary one resolves empty |
 | `mapper.detail_fetch` | Secondary API call, scoped to the selected result, to enrich `extra` with data the search endpoint didn't provide |
 | `source_tag` / `dynamic_source_tag` | Badge naming the data source of a result; dynamic variant varies per result |
@@ -765,6 +802,12 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 2. Check `output.mode`
 3. Verify template placeholders (`$value`, `$label`, `$id`)
 4. Check `append_if` — may skip empty values
+
+### Cross-references not showing for a result
+
+1. Does the search endpoint's own response actually carry them? OLS4's lightweight `/api/select` usually doesn't (check a raw response) — if so, this needs `mapper.detail_fetch` (see [Detail fetch](#detail-fetch-secondary-lookup-after-selection)), not `mapper.xrefs`/`xref_from_extra*` alone
+2. Check the accession's prefix has a matching entry in `xref_catalog` (uppercased) — an unmapped prefix is silently skipped, not an error
+3. For `xref_from_extra_array`: check the named `extra` key actually resolves to a comma-separated list, not an empty string (test the `detail_fetch.url` by hand first)
 
 ### Value in JSON but not shown on dataset page
 
@@ -925,6 +968,17 @@ Add an entry here for each significant schema change:
 - Added `labels` to `sections.disease.display_mapping` (`MONDO` -> "Disease Model", `UPHENO` -> "Phenotype"): ckanext-fair3r's DataCite summary and ckanext-zenodo's record description now take each subject's label from `display_mapping` (`labels`, else the section title) instead of a list written in their code, so phenotypes needed their own label
 - `organism_choice`'s placeholder (shown in the search box when "Other" is chosen) now says to search by scientific name: OLS's NCBITaxon search doesn't match common names ("human" only finds viruses, "Homo sapiens" works)
 - Bumped schema version to 3.0.8
+
+## [2026-11-02]
+- Added `disease_source` (plain `select`: Donor / Parental cell line / Induced, blank by default) to `sections.disease`, stored as a `diseaseSource` subject. No single ontology term cleanly covers this distinction (checked BAO, EFO, NCIT, OBI live via OLS4 — only tangential matches), so it's a controlled choice rather than an ontology-backed field, like `resource_type`/`treatmentprotocol` elsewhere in the schema
+- Added `source_tissue_search` (FMA, new `ols_fma` API) and `source_cell_type_search` (Cell Ontology, new `ols_cl` API) as optional fields to `sections.anatomy`, for the tissue/cell type a sample or cell line was originally sourced from, separate from the tissue/organ of interest (`anat_search`, UBERON)
+- Added `mutationType_so` ("Mutation Type", right after `allele_search`), a manual ontology search backed by the new `ols_so` API, querying OLS4 for both the Sequence Ontology and NCIT at once (`extra_params.ontology: "so,ncit"`): SO alone has `transgenic`/`transgene` directly but no literal "knockout"/"knock-in" term (its formal equivalents are `null_mutation`/`loss_of_function_variant` and `insertion`), NCIT has the literal `Knock-out`/`Knock-in` terms (confirmed live). Not auto-filled from the allele search like `mutationType_display` (renamed to "Mutation Description" to disambiguate): an `api_search` field's auto-bind only copies raw text into the box without re-running the search, so it wouldn't actually resolve to an ontology term — left as a deliberate manual search
+- `mutationType_so`'s `output.tpl.subjectScheme` uses the new `"$scheme"` placeholder instead of a hardcoded `"SO"`, resolved per selected result (SO or NCIT) by a matching `ckanext-fair3r` fix reading OLS4's own `ontology_prefix` — generic for any `obo_ontology`-mapped field searching more than one OLS4 ontology, not special-cased to this field. Known gap: `ckanext-fair3r`'s server-side `_validate_controlled_subjects` still resolves `"$scheme"` to the field's single static `mapper.scheme`, so a submitted NCIT-sourced subject isn't matched by that rule and skips its sanity checks (not a false rejection, just reduced validation coverage). Checked live whether `mutationType_so` was also worth wiring up for cross-references like `disease_search` below: SO's `database_cross_reference` is almost entirely documentation links, not database accessions, and the NCIT terms checked have none at all — not worth it
+- Added `xref_concept: "Disease"` and a `detail_fetch` to `sections.disease.disease_search`'s `ols_mondo` mapper: OLS4's lightweight search (`/api/select`) doesn't return a term's cross-references, only its per-term detail endpoint does, so selecting a disease now fetches `https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?short_form={{short_form}}` (querying by `short_form` avoids the double-URL-encoded IRI OLS4's "canonical" detail path would otherwise need) and turns its `annotation.database_cross_reference` list into the same kind of cross-reference subjects (`"<Label> Disease"` scheme) that `gene_search`/`allele_search` already produce for MGI/RGD/Ensembl/etc. A matching generic fix in `ckanext-fair3r` (`mapper.xref_from_extra_array`, reusing the existing `xref_catalog` lookup for a whole comma-separated accession list instead of one) makes this work for any field configured the same way. Extended `xref_catalog` with the disease prefixes it resolves (DOID, OMIM, ORPHANET, MESH, NCIT, UMLS, SCTID), mostly via `identifiers.org` (OMIM needs `omim.org/entry/...` directly; SCTID needs a `SNOMEDCT:` prefix identifiers.org expects but Mondo doesn't send)
+- Switched `sections.disease`, `sections.anatomy` and `sections.diet`'s `display_mapping` from `list_links` to `composite` (`source: ["subjects"]`, each its own `accent_color`), the same display type `genes`/`organism`/`strain` already use: `list_links` has no notion of `crossRefOf` and no card/"label: value" row, so disease's cross-references each rendered as their own bullet repeating the disease's name, instead of one row with inline badges like gene/allele xrefs. Reordered `sections.disease.fields` (`disease_search` first, before `disease_source`): the repeatable composite display starts a new group each time it sees the section's `subject_scheme` ("MONDO"), so anything meant to land in the same disease's group has to come after it, same ordering `genes` already relies on (`gene_search` first)
+- Added `source_tag: "MyGene.info"` to the `mygene` API, so gene search results show a source badge like allele/ontology results already do
+- Shortened `mutationType_display`/`mutationType_so`'s `help` text (both were too verbose)
+- Bumped schema version to 3.0.9
 
 ---
 

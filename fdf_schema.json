@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/precliniverse/Dynamic_Metadata_form/refs/heads/main/schema.json",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "meta": {
     "title": "Open Science Dataset Registration Wizard",
     "description": "100% declarative schema. All business logic, APIs, conditions and output mapping are here.",
@@ -135,7 +135,17 @@
       "result_path": "response.docs",
       "mapper": {
         "strategy": "obo_ontology",
-        "scheme": "MONDO"
+        "scheme": "MONDO",
+        "xref_from_extra_array": "disease_xrefs_raw",
+        "extra": {
+          "disease_xrefs_raw": "{{annotation.database_cross_reference}}"
+        },
+        "detail_fetch": {
+          "url": "https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?short_form={{short_form}}",
+          "extra": {
+            "disease_xrefs_raw": "{{_embedded.terms[0].annotation.database_cross_reference}}"
+          }
+        }
       }
     },
     "ols_uberon": {
@@ -166,8 +176,51 @@
         "scheme": "PATO"
       }
     },
+    "ols_so": {
+      "label": "Sequence Ontology + NCIT (OLS4)",
+      "url": "https://www.ebi.ac.uk/ols4/api/select",
+      "query_param": "q",
+      "extra_params": {
+        "ontology": "so,ncit",
+        "rows": 10
+      },
+      "result_path": "response.docs",
+      "mapper": {
+        "strategy": "obo_ontology",
+        "scheme": "SO"
+      }
+    },
+    "ols_fma": {
+      "label": "FMA (OLS4)",
+      "url": "https://www.ebi.ac.uk/ols4/api/select",
+      "query_param": "q",
+      "extra_params": {
+        "ontology": "fma",
+        "rows": 10
+      },
+      "result_path": "response.docs",
+      "mapper": {
+        "strategy": "obo_ontology",
+        "scheme": "FMA"
+      }
+    },
+    "ols_cl": {
+      "label": "Cell Ontology (OLS4)",
+      "url": "https://www.ebi.ac.uk/ols4/api/select",
+      "query_param": "q",
+      "extra_params": {
+        "ontology": "cl",
+        "rows": 10
+      },
+      "result_path": "response.docs",
+      "mapper": {
+        "strategy": "obo_ontology",
+        "scheme": "CL"
+      }
+    },
     "mygene": {
       "label": "MyGene.info",
+      "source_tag": "MyGene.info",
       "provides_chromosome_location": true,
       "url": "https://mygene.info/v3/query",
       "query_param": "q",
@@ -590,6 +643,41 @@
       "db": "ensembl",
       "label": "Ensembl",
       "uri": "https://www.ensembl.org/id/{{id_suffix}}"
+    },
+    "DOID": {
+      "db": "doid",
+      "label": "DOID",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "OMIM": {
+      "db": "omim",
+      "label": "OMIM",
+      "uri": "https://omim.org/entry/{{id_suffix}}"
+    },
+    "ORPHANET": {
+      "db": "orphanet",
+      "label": "Orphanet",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "MESH": {
+      "db": "mesh",
+      "label": "MeSH",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "NCIT": {
+      "db": "ncit",
+      "label": "NCIT",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "UMLS": {
+      "db": "umls",
+      "label": "UMLS",
+      "uri": "https://identifiers.org/{{id}}"
+    },
+    "SCTID": {
+      "db": "snomedct",
+      "label": "SNOMED CT",
+      "uri": "https://identifiers.org/SNOMEDCT:{{id_suffix}}"
     }
   },
   "vocabularies": {
@@ -2058,8 +2146,33 @@
           }
         },
         {
-          "id": "mutationType_display",
+          "id": "mutationType_so",
           "label": "Mutation Type",
+          "type": "api_search",
+          "api": "ols_so",
+          "allow_manual": true,
+          "required": false,
+          "organism_dependent": true,
+          "visible_if": {
+            "field": "gene_search",
+            "not_empty": true
+          },
+          "help": "Search the Sequence Ontology / NCIT for the precise term (not auto-filled). Try the text from Mutation Description below as a starting query.",
+          "placeholder": "E.g. missense_variant, frameshift_variant, stop_gained, Knock-out…",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "$scheme",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
+        },
+        {
+          "id": "mutationType_display",
+          "label": "Mutation Description",
           "type": "text",
           "required": false,
           "allow_manual": true,
@@ -2070,7 +2183,7 @@
             "not_empty": true
           },
           "bind_to": "consequenceType || geneMutationType",
-          "help": "Auto-filled from the allele search above when the API provides it (reliable for mouse and rat; not always for other species). If it stays empty or looks wrong, enter it manually. Common examples: missense_variant, nonsense_variant (stop_gained), frameshift_variant, deletion, insertion, duplication, inversion, splice_site_variant, synonymous_variant, knockout, knock-in, conditional knockout.",
+          "help": "Auto-filled from the allele search when available; edit freely otherwise. See Mutation Type above for the ontology-coded version.",
           "placeholder": "E.g. missense_variant",
           "output": {
             "path": "subjects",
@@ -2095,6 +2208,8 @@
           "subjectScheme": [
             "geneAccessionId",
             "alleleAccessionId",
+            "SO",
+            "NCIT",
             "geneMutationType",
             "geneChromosomeLocation",
             "xenopusStrainLine",
@@ -2109,7 +2224,9 @@
           "alleleAccessionId": "Allele",
           "xenopusStrainLine": "Strain / Line",
           "lineType": "Line Type",
-          "geneMutationType": "Mutation Type"
+          "SO": "Mutation Type",
+          "NCIT": "Mutation Type",
+          "geneMutationType": "Mutation Description"
         },
         "accent_color": "#7c3aed",
         "display_type": "composite"
@@ -2242,11 +2359,17 @@
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
           "subjectScheme": "EFO"
         },
-        "display_type": "list_links"
+        "labels": {
+          "EFO": "Diet"
+        },
+        "accent_color": "#92400e",
+        "display_type": "composite"
       }
     },
     {
@@ -2269,6 +2392,7 @@
           "label": "Modeled Disease (MONDO)",
           "type": "api_search",
           "api": "ols_mondo",
+          "xref_concept": "Disease",
           "allow_manual": true,
           "required": false,
           "help": "Search for diseases in the Mondo Disease Ontology, which unifies the Disease Ontology, OMIM, Orphanet and NCIt. Describe the disease model used in your study.",
@@ -2282,6 +2406,39 @@
               "valueURI": "$id"
             },
             "also_description": true
+          }
+        },
+        {
+          "id": "disease_source",
+          "label": "Disease Source",
+          "type": "select",
+          "options": [
+            {
+              "value": "",
+              "label": "— Not specified —"
+            },
+            {
+              "value": "Donor",
+              "label": "Donor (patient-derived sample)"
+            },
+            {
+              "value": "Parental cell line",
+              "label": "Parental cell line"
+            },
+            {
+              "value": "Induced",
+              "label": "Induced (e.g. chemically or genetically induced)"
+            }
+          ],
+          "required": false,
+          "help": "How the disease model was obtained. No single ontology term covers this distinction, so this is a plain controlled choice, not an ontology-backed field.",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "$value",
+              "subjectScheme": "diseaseSource"
+            }
           }
         },
         {
@@ -2306,18 +2463,23 @@
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
           "subjectScheme": [
             "MONDO",
+            "diseaseSource",
             "UPHENO"
           ]
         },
         "labels": {
           "MONDO": "Disease Model",
+          "diseaseSource": "Disease Source",
           "UPHENO": "Phenotype"
         },
-        "display_type": "list_links"
+        "accent_color": "#be123c",
+        "display_type": "composite"
       }
     },
     {
@@ -2354,14 +2516,62 @@
             },
             "also_description": true
           }
+        },
+        {
+          "id": "source_tissue_search",
+          "label": "Source Tissue (FMA)",
+          "type": "api_search",
+          "api": "ols_fma",
+          "allow_manual": true,
+          "required": false,
+          "help": "Optional. For cell-line or sample-derived models: the tissue the material was originally sourced from (Foundational Model of Anatomy), if different from the tissue/organ of interest above.",
+          "placeholder": "E.g. Skin, Peripheral blood, Liver…",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "FMA",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
+        },
+        {
+          "id": "source_cell_type_search",
+          "label": "Source Cell Type (CL)",
+          "type": "api_search",
+          "api": "ols_cl",
+          "allow_manual": true,
+          "required": false,
+          "help": "Optional. The cell type the model is derived from (Cell Ontology), e.g. for a cell line or iPSC-derived model.",
+          "placeholder": "E.g. Fibroblast, Hepatocyte, Induced pluripotent stem cell…",
+          "output": {
+            "path": "subjects",
+            "mode": "append_if",
+            "tpl": {
+              "subject": "$label",
+              "subjectScheme": "CL",
+              "valueURI": "$id"
+            },
+            "also_description": true
+          }
         }
       ],
       "display_mapping": {
-        "source": "subjects",
+        "source": [
+          "subjects"
+        ],
         "filter": {
-          "subjectScheme": "UBERON"
+          "subjectScheme": ["UBERON", "FMA", "CL"]
         },
-        "display_type": "list_links"
+        "labels": {
+          "UBERON": "Tissue / Organ",
+          "FMA": "Source Tissue",
+          "CL": "Source Cell Type"
+        },
+        "accent_color": "#15803d",
+        "display_type": "composite"
       }
     }
   ]
