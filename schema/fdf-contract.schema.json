@@ -108,8 +108,7 @@
       "type": "object",
       "properties": {
         "value": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "label": {
           "type": "string",
@@ -594,6 +593,10 @@
             "extra"
           ],
           "additionalProperties": false
+        },
+        "xref_from_extra_array": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
