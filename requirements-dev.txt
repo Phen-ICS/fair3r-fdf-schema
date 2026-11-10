@@ -1,0 +1,3 @@
+# SPDX-FileCopyrightText: 2026 CNRS
+# SPDX-License-Identifier: CECILL-B
+jsonschema==4.26.0

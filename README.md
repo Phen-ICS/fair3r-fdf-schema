@@ -1,8 +1,19 @@
-# Fair3r FDF chema
+# FAIR3R FDF Schema
 
-**100% declarative JSON schema** that drives the Fair3R Dataset Form (FDF) — a guided wizard for creating and editing FAIR datasets in CKAN.
+**Declarative form configuration** that drives the Fair3R Dataset Form (FDF) — a guided wizard for creating and editing FAIR datasets in CKAN.
 
-> All business logic, API integrations, conditional visibility, and output mapping live in this single file. The frontend builds the form from it; the backend reuses the same rules to validate and convert data.
+The configuration declares fields, API mappings, visibility and output rules. The CKAN runtime implements their behavior, validates submitted answers, resolves identifiers and converts metadata for publication. Configuration validation does not prove scientific correctness or export fidelity.
+
+Validate changes locally:
+
+```sh
+python -m pip install -r requirements-dev.txt
+python tools/validate_schema.py
+python -m unittest discover -s tests -v
+python tools/i18n.py check --locale fr
+```
+
+The [FDF contract](schema/fdf-contract.schema.json) describes the configuration language; `fdf_schema.json` is an instance of that contract. See the [release and consumer requirements](docs/release-contract.md) for immutable bundles, dataset provenance and the remaining CKAN work.
 
 ---
 
@@ -10,8 +21,8 @@
 
 ```jsonc
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "3.0.0",
+  "$schema": "./schema/fdf-contract.schema.json",
+  "version": "3.0.9",
   "meta": { ... },
   "apis": { ... },
   "vocabularies": { ... },
@@ -44,7 +55,7 @@ User fills form → JSON output stored in fdf_output_json
 Backend reads same schema → validates → maps to DataCite → publishes to CKAN
 ```
 
-**One source of truth.** Change the JSON, everything updates.
+Deploy a validated, versioned configuration together with a compatible CKAN runtime. Existing datasets retain the interpretation of the configuration used to collect them.
 
 ---
 
@@ -865,6 +876,13 @@ python tools/generate_diagram.py
 ---
 
 ## Changelog
+
+### 2026-10-28 — 3.0.9
+
+- Added the FDF configuration contract, reference validator and failing fixtures to PR CI.
+- Added reproducible commit-pinned bundles with provenance and content hashes.
+- Relabelled PATO:0001340 as Hermaphrodite and removed free-text `valueURI` mappings from chromosome location, allele identifier and mutation type.
+- Updated French translations and documented the remaining CKAN deployment, provenance and converter requirements.
 
 Add an entry here for each significant schema change:
 
