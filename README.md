@@ -587,6 +587,30 @@ Key fields at the API level (sibling of `mapper`, not inside it):
 
 The API automatically switches based on the selected organism's taxon ID.
 
+### Deprecating an API
+
+When a service or a source is replaced (for example the Disease Ontology by MONDO), keep the old entry in `apis` and declare the replacement on it:
+
+```json
+"ols_doid": {
+  "label": "Disease Ontology (OLS4)",
+  "url": "https://www.ebi.ac.uk/ols4/api/select",
+  "mapper": { "strategy": "obo_ontology", "scheme": "DOID" },
+  "deprecated": {
+    "since": "2026-11-10",
+    "replaced_by": "ols_mondo",
+    "reason": "Diseases come from MONDO only."
+  }
+}
+```
+
+- `since` (date, `YYYY-MM-DD`) and `replaced_by` (an existing API) are required, `reason` is free text.
+- Point every field that used the old API (`api`, `search_api`, `api_by_taxon`, `api_fallback`) at the replacement: the validator rejects a field that still names a deprecated API.
+- The replacement must be a live API (no chains of deprecations).
+- **Same terms behind a new endpoint** (same `mapper.scheme`, for example OLS3 to OLS4): stored answers stay valid, only the URL changes.
+- **A source replaced by another** (different `mapper.scheme`): answers already stored in datasets (`subjectScheme` / `valueURI`) are re-resolved in the replacement by a consumer-side migration. The old `mapper.scheme` must be fixed (not `"$scheme"`) and must not be used by a live API, otherwise stored terms could not be told apart; the validator checks both.
+- `tools/check_apis.py` still probes a deprecated API but a failure there does not fail the daily check.
+
 ---
 
 ## Vocabularies
@@ -769,6 +793,7 @@ Make sure the API's `mapper.extra` actually sets the key referenced by `bind_to`
 | `repeatable` | Section can be repeated |
 | `initial_instances` | Pre-filled rows for repeatable sections |
 | `depends_on` | Parent field required before API query |
+| `deprecated` | On an API: `since`, `replaced_by` (and `reason`) of a retired API, see "Deprecating an API" |
 | `api` | Default API for `api_search` fields |
 | `api_by_taxon` | Dynamic API selection by organism |
 | `on_change` | Actions triggered on field change |
@@ -1002,6 +1027,7 @@ Add an entry here for each significant schema change:
 - Merged the FDF contract validation (3.0.9: contract, offline validator, regression tests, commit-pinned bundle builder, `Hermaphrodite` label, no `valueURI` for free-text subjects).
 - Extended the contract so that it accepts what this release uses: `xref_from_extra_array` is a known `mapper` property, and a `select` option may have a blank `value` (the blank default of `disease_source`).
 - Bumped schema version to 3.1.0 (3.0.9 stays the contract validation release).
+- Added `apis.<name>.deprecated` (`since`, `replaced_by`, `reason`) to the contract: a retired API stays in the file with its replacement. The validator rejects an unknown or deprecated replacement, a field that still uses a deprecated API, and a source change whose old `mapper.scheme` is not fixed or is shared with a live API. `tools/check_apis.py` reports a deprecated API without failing. No API is deprecated yet, so the schema version is unchanged.
 
 ---
 

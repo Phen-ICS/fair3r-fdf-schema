@@ -104,7 +104,11 @@ def main() -> int:
         detail = f"HTTP {http_status}" if http_status else error
         print(f"[{status}] {name} ({entry.get('label', name)}) - {detail}")
         if status == "DOWN":
-            down.append(name)
+            if "deprecated" in entry:
+                # a retired API is expected to go away: reported, but not a failure
+                print(f"       deprecated, replaced by {entry['deprecated']['replaced_by']}")
+            else:
+                down.append(name)
 
     if down:
         print(f"\n{len(down)} API(s) DOWN: {', '.join(down)}", file=sys.stderr)
