@@ -70,6 +70,9 @@ def validate(config: dict, locales: dict | None = None) -> list[str]:
     def api_ref(name, where):
         if name not in config["apis"]:
             errors.append(f"{where}: unknown API {name!r}")
+        elif "deprecated" in config["apis"][name]:
+            replacement = config["apis"][name]["deprecated"]["replaced_by"]
+            errors.append(f"{where}: API {name!r} is deprecated, use {replacement!r}")
 
     def options_for(field):
         if "options" in field:
@@ -167,6 +170,38 @@ def validate(config: dict, locales: dict | None = None) -> list[str]:
     for node in list(dependencies):
         visit(node)
 
+    def scheme_of(api):
+        return api.get("mapper", {}).get("scheme")
+
+    def check_deprecation(name, api):
+        """A deprecated API names a live replacement; stored terms are migrated by scheme."""
+        where = f"apis/{name}/deprecated"
+        replacement = api["deprecated"]["replaced_by"]
+        if replacement == name:
+            errors.append(f"{where}: an API cannot replace itself")
+            return
+        if replacement not in config["apis"]:
+            errors.append(f"{where}: replacement API {replacement!r} does not exist")
+            return
+        if "deprecated" in config["apis"][replacement]:
+            errors.append(f"{where}: replacement API {replacement!r} is itself deprecated (name the final one)")
+            return
+        old_scheme, new_scheme = scheme_of(api), scheme_of(config["apis"][replacement])
+        if old_scheme == new_scheme:
+            return  # same terms behind a new endpoint: stored answers stay valid
+        if not old_scheme or old_scheme.startswith("$"):
+            errors.append(f"{where}: a source change needs a fixed mapper.scheme to find the stored terms")
+            return
+        shared = sorted(
+            other for other, candidate in config["apis"].items()
+            if other != name and "deprecated" not in candidate and scheme_of(candidate) == old_scheme
+        )
+        if shared:
+            errors.append(
+                f"{where}: scheme {old_scheme!r} is also used by live API(s) {shared}: "
+                "stored terms could not be told apart"
+            )
+
     for name, api in config["apis"].items():
         if "depends_on" in api:
             resolve(api["depends_on"], f"apis/{name}")
@@ -176,6 +211,8 @@ def validate(config: dict, locales: dict | None = None) -> list[str]:
                     resolve(value, f"apis/{name}/{key}")
         if urlsplit(api["url"]).scheme not in ("http", "https") or not urlsplit(api["url"]).netloc:
             errors.append(f"apis/{name}: URL must use HTTP(S) with a host")
+        if "deprecated" in api:
+            check_deprecation(name, api)
     for name, vocabulary in config["vocabularies"].items():
         duplicate_ids([i["id"] for i in vocabulary["items"]], f"vocabularies/{name}")
         for item in vocabulary["items"]:
