@@ -15,9 +15,10 @@ so it's reported as UP. Entries whose "url" is a relative path (e.g.
 xenbase_mutant_lines, which is proxied through the CKAN backend rather than
 called directly) are skipped, since there's no standalone host to probe.
 
-A failing attempt is retried a couple of times with a short delay before
-being declared DOWN, since public research APIs (Ensembl in particular)
-occasionally have a one-off slow request rather than a real outage.
+A failing attempt is retried (4 attempts, 30 s apart, about 90 s in all)
+before being declared DOWN, since public research APIs (Ensembl in
+particular) have transient 500s and slow answers that last longer than a few
+seconds without being a real outage.
 
 Exits non-zero if any API is DOWN, so a scheduled GitHub Actions run fails
 and surfaces the problem.
@@ -40,8 +41,8 @@ SCHEMA_PATH = ROOT / "fdf_schema.json"
 TIMEOUT_SECONDS = 15
 USER_AGENT = "fair3r-fdf-schema-api-check/1.0"
 PROBE_VALUE = "test"
-RETRY_ATTEMPTS = 3
-RETRY_DELAY_SECONDS = 5
+RETRY_ATTEMPTS = 4
+RETRY_DELAY_SECONDS = 30
 
 
 def build_probe_url(entry: dict) -> str:
